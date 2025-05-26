@@ -1,8 +1,8 @@
 <template>
-  <Home v-if="$route.path === '/'" />
+  <Login v-if="$route.path === '/'" />
   <router-view v-else />
 </template>
 
 <script setup>
-import Home from './Pages/Home.vue'
+import Login from './Pages/Login.vue'
 </script>

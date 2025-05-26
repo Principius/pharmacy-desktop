@@ -2,7 +2,11 @@
     <div
         class="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500">
         <div class="w-full max-w-md p-8 text-center bg-white shadow-xl rounded-2xl">
-            <h1 class="mb-6 text-3xl font-bold text-gray-800">Login</h1>
+            <h1
+                class="mb-6 text-4xl font-extrabold text-transparent transition-all duration-700 ease-in-out bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 animate-fade-in">
+                {{ pharmacyName }}
+            </h1>
+
 
             <form @submit.prevent="handleLogin" class="space-y-5 text-left">
                 <label class="block">
@@ -31,23 +35,36 @@
                     &copy; {{ currentYear }} Automate-XT All rights reserved.
                 </p>
             </form>
-
-            <button @click="$router.push('/')"
-                class="mt-6 font-semibold text-purple-600 underline hover:text-purple-800">
-                Back to Home
-            </button>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 
 const email = ref('')
 const password = ref('')
+const pharmacyName = ref('Pharmacy') // fallback if not found
 const router = useRouter()
+
+// Capitalize function
+const capitalizeWords = (str) => {
+    return str.toUpperCase()
+}
+
+// Fetch pharmacy name on load
+onMounted(async () => {
+    try {
+        const result = await window.electronAPI.getPharmacyData()
+        if (result?.name) {
+            pharmacyName.value = capitalizeWords(result.name)
+        }
+    } catch (error) {
+        console.error('Failed to load pharmacy name:', error)
+    }
+})
 
 async function handleLogin() {
     try {

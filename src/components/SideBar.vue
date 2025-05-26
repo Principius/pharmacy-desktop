@@ -149,7 +149,7 @@
                         </Link>
                     </li>
 
-                    <li >
+                    <li>
                         <Link @click="$router.push('/lowstock')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
@@ -199,7 +199,7 @@
                         </Link>
                     </li>
 
-                    <li >
+                    <li>
                         <Link @click="$router.push('/offline')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
@@ -223,35 +223,7 @@
                         </Link>
                     </li>
                     <li>
-                        <Link
-                            class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                            viewBox="0 0 24 24">
-                            <path
-                                d="M12.268 6A2 2 0 0 0 14 9h1v1a2 2 0 0 0 3.04 1.708l-.311 1.496a1 1 0 0 1-.979.796H8.605l.208 1H16a3 3 0 1 1-2.83 2h-2.34a3 3 0 1 1-4.009-1.76L4.686 5H4a1 1 0 0 1 0-2h1.5a1 1 0 0 1 .979.796L6.939 6h5.329Z" />
-                            <path
-                                d="M18 4a1 1 0 1 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0V8h2a1 1 0 1 0 0-2h-2V4Z" />
-                        </svg>
-                        <span class="flex-1 ms-3 whitespace-nowrap">Deliveries</span>
-                        </Link>
-                    </li>
-
-                    <li>
-                        <Link
-                            class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                            viewBox="0 0 24 24">
-                            <path fill-rule="evenodd"
-                                d="M20.29 8.567c.133.323.334.613.59.85v.002a3.536 3.536 0 0 1 0 5.166 2.442 2.442 0 0 0-.776 1.868 3.534 3.534 0 0 1-3.651 3.653 2.483 2.483 0 0 0-1.87.776 3.537 3.537 0 0 1-5.164 0 2.44 2.44 0 0 0-1.87-.776 3.533 3.533 0 0 1-3.653-3.654 2.44 2.44 0 0 0-.775-1.868 3.537 3.537 0 0 1 0-5.166 2.44 2.44 0 0 0 .775-1.87 3.55 3.55 0 0 1 1.033-2.62 3.594 3.594 0 0 1 2.62-1.032 2.401 2.401 0 0 0 1.87-.775 3.535 3.535 0 0 1 5.165 0 2.444 2.444 0 0 0 1.869.775 3.532 3.532 0 0 1 3.652 3.652c-.012.35.051.697.184 1.02ZM9.927 7.371a1 1 0 1 0 0 2h.01a1 1 0 0 0 0-2h-.01Zm5.889 2.226a1 1 0 0 0-1.414-1.415L8.184 14.4a1 1 0 0 0 1.414 1.414l6.218-6.217Zm-2.79 5.028a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01Z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span class="flex-1 ms-3 whitespace-nowrap">Damaged Goods</span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
+                        <Link @click="$router.push('/debtors')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
 
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
@@ -264,7 +236,7 @@
                         </Link>
                     </li>
                     <li>
-                        <Link
+                        <Link @click="$router.push('/order')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -276,7 +248,7 @@
                         </Link>
                     </li>
                     <li>
-                        <Link
+                        <Link @click="$router.push('/users/create')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
@@ -290,7 +262,7 @@
                     </li>
 
                     <li>
-                        <Link
+                        <Link @click="$router.push('/permissions')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
 
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
@@ -306,7 +278,7 @@
                         </Link>
                     </li>
                     <li>
-                        <Link
+                        <Link @click="$router.push('/offline')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
 
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
@@ -319,61 +291,31 @@
                         </Link>
                     </li>
                     <li>
-                        <button type="button" @click="toggleReportsDropdown"
-                            class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                            :aria-expanded="isReportsDropdownOpen">
-                            <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                                viewBox="0 0 24 24">
-                                <path fill-rule="evenodd"
-                                    d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11.5c.07 0 .14-.007.207-.021.095.014.193.021.293.021h2a2 2 0 0 0 2-2V7a1 1 0 0 0-1-1h-1a1 1 0 1 0 0 2v11h-2V5a2 2 0 0 0-2-2H5Zm7 4a1 1 0 0 1 1-1h.5a1 1 0 1 1 0 2H13a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h.5a1 1 0 1 1 0 2H13a1 1 0 0 1-1-1Zm-6 4a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H7a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H7a1 1 0 0 1-1-1ZM7 6a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H7Zm1 3V8h1v1H8Z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span class="flex-1 text-left ms-3 rtl:text-right whitespace-nowrap">Reports</span>
-                            <svg class="w-3 h-3 transform" :class="{ 'rotate-180': isReportsDropdownOpen }"
-                                aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="2" d="m1 1 4 4 4-4" />
-                            </svg>
-                        </button>
-                        <ul id="dropdown-example" :class="{ hidden: !isReportsDropdownOpen }" class="py-2 space-y-2">
-                            <li>
-                                <Link
-                                    class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                                Products
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                                Sales
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                                Expiration
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                                Profit
-                                </Link>
-                            </li>
-                        </ul>
-                    </li>
+                        <Link @click="$router.push('/expired/soon')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
 
-                    <li>
-                        <button as="button" @click="$router.push('/login')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                             viewBox="0 0 24 24">
-                            <path
-                                d="M14.502 7.046h-2.5v-.928a2.122 2.122 0 0 0-1.199-1.954 1.827 1.827 0 0 0-1.984.311L3.71 8.965a2.2 2.2 0 0 0 0 3.24L8.82 16.7a1.829 1.829 0 0 0 1.985.31 2.121 2.121 0 0 0 1.199-1.959v-.928h1a2.025 2.025 0 0 1 1.999 2.047V19a1 1 0 0 0 1.275.961 6.59 6.59 0 0 0 4.662-7.22 6.593 6.593 0 0 0-6.437-5.695Z" />
+                            <path fill-rule="evenodd"
+                                d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11.5c.07 0 .14-.007.207-.021.095.014.193.021.293.021h2a2 2 0 0 0 2-2V7a1 1 0 0 0-1-1h-1a1 1 0 1 0 0 2v11h-2V5a2 2 0 0 0-2-2H5Zm7 4a1 1 0 0 1 1-1h.5a1 1 0 1 1 0 2H13a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h.5a1 1 0 1 1 0 2H13a1 1 0 0 1-1-1Zm-6 4a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H7a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H7a1 1 0 0 1-1-1ZM7 6a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H7Zm1 3V8h1v1H8Z"
+                                clip-rule="evenodd" />
                         </svg>
-                        <span class="flex-1 ms-3 whitespace-nowrap">Log Out</span>
+
+                        <span class="flex-1 ms-3 whitespace-nowrap">Expiration</span>
+                        </Link>
+                    </li>
+
+                    <li>
+                        <button as="button" @click="$router.push('/')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                            <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                    d="M14.502 7.046h-2.5v-.928a2.122 2.122 0 0 0-1.199-1.954 1.827 1.827 0 0 0-1.984.311L3.71 8.965a2.2 2.2 0 0 0 0 3.24L8.82 16.7a1.829 1.829 0 0 0 1.985.31 2.121 2.121 0 0 0 1.199-1.959v-.928h1a2.025 2.025 0 0 1 1.999 2.047V19a1 1 0 0 0 1.275.961 6.59 6.59 0 0 0 4.662-7.22 6.593 6.593 0 0 0-6.437-5.695Z" />
+                            </svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">Log Out</span>
                         </button>
                     </li>
                 </ul>
@@ -389,7 +331,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
-import CountedMessages from './CountedMessages.vue';
 
 const props = defineProps({
     tenantName: String,

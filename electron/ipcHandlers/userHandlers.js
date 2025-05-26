@@ -1,4 +1,4 @@
-// userHandlers.js
+
 import registerUser from '../../logic/registerUser.js';
 import loginUser from '../../logic/loginUser.js';
 
