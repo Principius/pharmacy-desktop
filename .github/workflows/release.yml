@@ -26,5 +26,5 @@ jobs:
 
       - name: Build & Publish
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Works for public repos
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npx electron-builder --publish always
