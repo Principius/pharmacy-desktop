@@ -2,7 +2,10 @@
   "name": "pharmacy-desktop",
   "version": "1.0.1",
   "description": "Community pharmacy management desktop application",
-  "author": "AfyaTrack",
+   "author": {
+    "name": "Principius",
+    "email": "princepius200120@gmail.com"
+  },
   "private": true,
   "type": "module",
   "main": "electron/main.js",
