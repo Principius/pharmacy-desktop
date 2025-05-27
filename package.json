@@ -1,6 +1,6 @@
 {
   "name": "pharmacy-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Community pharmacy management desktop application",
   "author": "AfyaTrack",
   "private": true,
@@ -18,7 +18,7 @@
   "build": {
     "appId": "com.afyatrack.pharmacy",
     "productName": "AfyaTrack",
-    "icon": "build/icon.ico",
+    "icon": "build/icon", 
     "directories": {
       "output": "dist_electron"
     },
@@ -36,7 +36,16 @@
       }
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "build"
     }
   },
   "dependencies": {
