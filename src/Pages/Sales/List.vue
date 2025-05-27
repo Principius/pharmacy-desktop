@@ -2,7 +2,7 @@
     <div class="max-w-6xl p-6 mx-auto bg-white rounded-lg shadow-md dark:bg-gray-900">
         <Back />
 
-        <div class="flex flex-col mb-6 space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+        <div class="flex flex-col mt-4 mb-6 space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
             <h2 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100">All Sales</h2>
 
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">

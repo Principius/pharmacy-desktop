@@ -46,58 +46,42 @@ import Swal from 'sweetalert2'
 
 const email = ref('')
 const password = ref('')
-const pharmacyName = ref('Pharmacy') // fallback if not found
+const pharmacyName = ref('Pharmacy')
 const router = useRouter()
 
-// Capitalize function
-const capitalizeWords = (str) => {
-    return str.toUpperCase()
-}
-
-// Fetch pharmacy name on load
 onMounted(async () => {
-    try {
-        const result = await window.electronAPI.getPharmacyData()
-        if (result?.name) {
-            pharmacyName.value = capitalizeWords(result.name)
-        }
-    } catch (error) {
-        console.error('Failed to load pharmacy name:', error)
-    }
+  try {
+    const result = await window.electronAPI.getPharmacyData?.()
+    if (result?.name) pharmacyName.value = result.name.toUpperCase()
+  } catch (error) {
+    console.error('Failed to load pharmacy name:', error)
+  }
 })
 
 async function handleLogin() {
-    try {
-        const response = await window.electronAPI.loginUser({
-            email: email.value,
-            password: password.value
-        })
+  try {
+    const response = await window.electronAPI.loginUser({
+      email: email.value,
+      password: password.value,
+    })
 
-        const user = response.user?.user || response.user
+    const user = response.user?.user || response.user
 
-        if (response.success && user) {
-            await Swal.fire({
-                title: `Welcome, ${user.name || user.email}!`,
-                icon: 'success',
-                confirmButtonText: 'Continue'
-            })
+    if (response.success && user) {
+      localStorage.setItem('user', JSON.stringify(user))
 
-            router.push({ name: 'Dashboard', params: { name: user.name } })
-        } else {
-            Swal.fire({
-                title: 'Login Failed',
-                text: response.error || 'An error occurred.',
-                icon: 'error',
-                confirmButtonText: 'Try Again'
-            })
-        }
-    } catch (error) {
-        Swal.fire({
-            title: 'Error',
-            text: error.message || 'Unexpected error occurred.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        })
+      await Swal.fire({
+        title: `Welcome, ${user.name || user.email}!`,
+        icon: 'success',
+        confirmButtonText: 'Continue',
+      })
+
+      router.push({ name: 'Dashboard' })
+    } else {
+      Swal.fire('Login Failed', response.error || 'An error occurred.', 'error')
     }
+  } catch (error) {
+    Swal.fire('Error', error.message || 'Unexpected error occurred.', 'error')
+  }
 }
 </script>

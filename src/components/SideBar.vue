@@ -1,5 +1,4 @@
 <template>
-
     <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="flex items-center justify-between">
@@ -23,7 +22,7 @@
                                 d="M504 256c0 136.1-111 248-248 248S8 392.1 8 256 119 8 256 8s248 111 248 248zm-141.7-35.33c4.937-32.1-20.19-50.74-54.55-62.57...">
                             </path>
                         </svg>
-                        <!--  {{ tenantName }} --> PHARMACY LINE
+                        {{ pharmacyName }}
                     </button>
                 </div>
                 <div class="flex items-center">
@@ -47,17 +46,17 @@
                                 class="absolute w-48 bg-white divide-y divide-gray-200 rounded-md shadow-lg mt-36 right-4 dark:bg-gray-800 dark:divide-gray-700">
                                 <div class="px-4 py-3">
                                     <p class="text-sm text-gray-700 dark:text-gray-300">
-                                        <!--   {{ $page.props.auth.user?.name ?? 'Guest User' }} -->
+                                        {{ user.name }}
                                     </p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">
-                                        <!--      {{ $page.props.auth.user?.email ?? 'No Email Available' }} -->
+                                        {{ user.email }}
                                     </p>
                                 </div>
                                 <ul class="py-1 text-sm text-gray-700 dark:text-gray-300">
                                     <li>
                                         <a href="#"
                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                            <!--      {{ $page.props.auth.user.role }} -->
+                                            {{ user.role }}
                                         </a>
                                     </li>
                                 </ul>
@@ -82,7 +81,7 @@
     </button>
 
     <aside id="logo-sidebar"
-        class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform transform bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+         class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform duration-300 ease-in-out transform border-r border-gray-200 shadow-xl bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-800 dark:border-gray-700"
         :class="{ '-translate-x-full': !isSidebarVisibleOnSmallScreen, 'sm:translate-x-0': true }" aria-label="Sidebar">
         <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
 
@@ -136,19 +135,6 @@
                         <span class="flex-1 ms-3 whitespace-nowrap">Products</span>
                         </Link>
                     </li>
-
-                    <li>
-                        <Link @click="$router.push('/cloud')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                d="M4 10h16M8 14h8m-4-7V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z" />
-                        </svg>
-                        <span class="flex-1 ms-3 whitespace-nowrap">Send To Cloud</span>
-                        </Link>
-                    </li>
-
                     <li>
                         <Link @click="$router.push('/lowstock')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
@@ -322,9 +308,7 @@
             </div>
         </div>
     </aside>
-
     <div class="p-4 sm:ml-64 sm:mt-12">
-
     </div>
 </template>
 
@@ -332,12 +316,7 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from "axios";
 
-const props = defineProps({
-    tenantName: String,
-    unreadMessages: Number,
-    activePatients: Number,
-    revenueOverview: Object,
-});
+const pharmacyName = ref('Pharmacy')
 
 // State for user menu visibility
 const isUserMenuOpen = ref(false);
@@ -354,27 +333,40 @@ const toggleSidebar = () => {
 // State for dropdown visibility
 const isReportsDropdownOpen = ref(false);
 
-const toggleReportsDropdown = () => {
-    isReportsDropdownOpen.value = !isReportsDropdownOpen.value;
-};
+// Capitalize function
+const capitalizeWords = (str) => {
+    return str.toUpperCase()
+}
 
-// Revenue dropdown logic
-const showDropdown = ref(false);
-const selectedPeriod = ref('current');
+// Fetch pharmacy name on load
+onMounted(async () => {
+    try {
+        const result = await window.electronAPI.getPharmacyData()
+        if (result?.name) {
+            pharmacyName.value = capitalizeWords(result.name)
+        }
+    } catch (error) {
+        console.error('Failed to load pharmacy name:', error)
+    }
+})
 
-const toggleDropdown = () => {
-    showDropdown.value = !showDropdown.value;
-};
+// User info (from localStorage or Electron)
+const user = ref({ name: '', email: '', role: '' })
 
-const setRevenuePeriod = (period) => {
-    selectedPeriod.value = period;
-    showDropdown.value = false;
-};
+onMounted(async () => {
+  const stored = localStorage.getItem('user')
+  if (stored) {
+    user.value = JSON.parse(stored)
+  } else {
+    const response = await window.electronAPI.getLoggedInUser()
+    if (response) {
+      user.value = response
+    } else {
+      router.push({ name: 'Login' })
+    }
+  }
+})
 
-const formattedRevenue = computed(() => {
-    const revenue = props.revenueOverview?.[selectedPeriod.value] || 0;
-    return revenue.toLocaleString();
-});
 </script>
 
 

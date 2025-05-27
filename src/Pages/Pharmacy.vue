@@ -87,7 +87,7 @@ const submitForm = async () => {
             form.value = { name: '', phone_number: '', email: '', address: '' }
 
             // ✅ Navigate to the homepage
-            router.push('/')
+            router.push('/register')
         }
     } catch (error) {
         console.error('Insert failed:', error)

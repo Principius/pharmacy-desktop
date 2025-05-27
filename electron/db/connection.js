@@ -1,15 +1,22 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
 import knex from 'knex'
+import { app } from 'electron'
 
 // Emulate __dirname in ESM
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+// Get Electron's userData path (safe for read/write)
+const userDataPath = app.getPath('userData')
+
+// Path to the SQLite file inside the userData directory
+const dbPath = path.join(userDataPath, 'pharmacy.db')
+
 const db = knex({
   client: 'sqlite3',
   connection: {
-    filename: path.join(__dirname, '..', 'pharmacy.db'),
+    filename: dbPath,
   },
   useNullAsDefault: true,
   migrations: {
@@ -17,7 +24,6 @@ const db = knex({
   },
 })
 
-// Automatically run latest migrations
 db.migrate
   .latest()
   .then(() => console.log('Migrations completed.'))

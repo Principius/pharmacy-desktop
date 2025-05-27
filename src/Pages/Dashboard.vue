@@ -1,130 +1,141 @@
 <template>
-    <div class="flex flex-col min-h-screen">
+    <div class="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950">
         <div class="flex flex-1">
             <!-- Sidebar -->
             <SideBar />
 
             <!-- Main Content -->
-            <div class="flex-1 p-6">
-                <h1 class="mt-16 mb-6 text-2xl font-bold">  {{ name }} Dashboard</h1>
-                <div class="grid grid-cols-1 gap-6 mb-6 md:grid-cols-2 lg:grid-cols-3">
-                    <!-- Daily Sales -->
-                    <Link  >
-                    <div
-                        class="p-6 transition-all ease-in-out rounded-lg shadow-lg bg-gradient-to-r from-green-400 to-green-600 hover:scale-105">
-                        <div class="flex items-center">
-                            <i class="w-6 h-6 mr-3 text-white fas fa-chart-line"></i>
-                            <h2 class="text-lg font-semibold text-white">Today's Sales</h2>
-                        </div>
-                        <p class="mt-2 text-white">Total Sales: {{ dailySales }}</p>
-                        <p class="mt-2 text-white">Total Revenue: {{ formatTZS(dailyRevenue) }}</p>
+            <div class="flex-1 px-4 py-6 mt-16 md:px-8 lg:px-12">
+                <div
+                    class="px-6 py-8 mx-auto mb-12 text-center transition-colors bg-white rounded-3xl dark:bg-gray-800 dark:text-gray-300 animate-fade-in">
+                    <h2 class="text-3xl font-extrabold text-purple-600 dark:text-purple-400">
+                        Welcome, {{ user.name }} 🎉
+                    </h2>
+                    <p class="mt-4 text-lg leading-relaxed">
+                        You're now inside the <strong>Community Pharmacy Management Software</strong>.
+                        Feel <span class="font-semibold text-green-600 dark:text-green-400">free and confident</span> to
+                        manage all
+                        your pharmacy operations—sales, inventory, expiry tracking, and more.
+                    </p>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        Navigate smartly. Act efficiently. Grow sustainably.
+                    </p>
+                </div>
+                <!-- Dashboard Stats -->
+                <div class="grid gap-6 mb-10 md:grid-cols-2 lg:grid-cols-3 animate-fade-in">
+                    <div @click="$router.push('/sales')" class="cursor-pointer">
+                        <DashboardCard title="Today's Sales" icon="fas fa-chart-line" bg="from-green-400 to-green-600"
+                            :lines="[
+                                'Total Sales: ' + dailySales,
+                                'Total Revenue: ' + formatTZS(dailyRevenue),
+                            ]" />
                     </div>
-                    </Link>
 
-                    <!-- Overall Sales -->
-                    <Link  >
-                    <div
-                        class="p-6 transition-all ease-in-out rounded-lg shadow-lg bg-gradient-to-r from-blue-400 to-blue-600 hover:scale-105">
-                        <div class="flex items-center">
-                            <i class="w-6 h-6 mr-3 text-white fas fa-chart-bar"></i>
-                            <h2 class="text-lg font-semibold text-white">Overall Sales</h2>
-                        </div>
-                        <p class="mt-2 text-white">Total Sales: {{ totalSales }}</p>
-                       <p class="mt-2 text-white">Total Revenue: {{ formatTZS(totalRevenue) }}</p>
+                    <div @click="$router.push('/sales')" class="cursor-pointer">
+                        <DashboardCard title="Overall Sales" icon="fas fa-chart-bar" bg="from-blue-400 to-blue-600"
+                            :lines="[
+                                'Total Sales: ' + totalSales,
+                                'Total Revenue: ' + formatTZS(totalRevenue),
+                            ]" />
                     </div>
-                    </Link>
 
-                    <!-- Available Products -->
-                    <Link >
-                    <div
-                        class="p-6 transition-all ease-in-out rounded-lg shadow-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:scale-105">
-                        <div class="flex items-center">
-                            <i class="w-6 h-6 mr-3 text-white fas fa-cube"></i>
-                            <h2 class="text-lg font-semibold text-white">Available Products</h2>
-                        </div>
-                        <p class="mt-2 text-white">Total: {{ availableProducts }}</p>
+                    <div @click="$router.push('/products')" class="cursor-pointer">
+                        <DashboardCard title="Available Products" icon="fas fa-cube" bg="from-yellow-400 to-yellow-600"
+                            :lines="['Total: ' + availableProducts]" />
                     </div>
-                    </Link>
 
-                    <!-- Expiring Soon Products -->
-                    <Link>
-                    <div
-                        class="p-6 transition-all ease-in-out rounded-lg shadow-lg bg-gradient-to-r from-red-400 to-red-600 hover:scale-105">
-                        <div class="flex items-center">
-                            <i class="w-6 h-6 mr-3 text-white fas fa-clock"></i>
-                            <h2 class="text-lg font-semibold text-white">Expiring Soon (In 180 Days)</h2>
-                        </div>
-                        <p class="mt-2 text-white">Total: {{ expiringSoonProducts }}</p>
+                    <div @click="$router.push('/expired/soon')" class="cursor-pointer">
+                        <DashboardCard title="Expiring Soon (180 Days)" icon="fas fa-clock" bg="from-red-400 to-red-600"
+                            :lines="['Total: ' + expiringSoonProducts]" />
                     </div>
-                    </Link>
 
-                    <!-- Expired Products -->
-                    <Link>
-                    <div
-                        class="p-6 transition-all ease-in-out rounded-lg shadow-lg bg-gradient-to-r from-gray-400 to-gray-600 hover:scale-105">
-                        <div class="flex items-center">
-                            <i class="w-6 h-6 mr-3 text-white fas fa-ban"></i>
-                            <h2 class="text-lg font-semibold text-white">Expired Products</h2>
-                        </div>
-                        <p class="mt-2 text-white">Total: {{ expiredProducts }}</p>
+                    <div @click="$router.push('/expired')" class="cursor-pointer">
+                        <DashboardCard title="Expired Products" icon="fas fa-ban" bg="from-gray-400 to-gray-600"
+                            :lines="['Total: ' + expiredProducts]" />
                     </div>
-                    </Link>
 
-                    <!-- Low Stock Drugs -->
-                    <Link>
-                    <div
-                        class="p-6 transition-all ease-in-out rounded-lg shadow-lg bg-gradient-to-r from-purple-400 to-purple-600 hover:scale-105">
-                        <div class="flex items-center">
-                            <i class="w-6 h-6 mr-3 text-white fas fa-boxes"></i>
-                            <h2 class="text-lg font-semibold text-white">Low Stock Drugs </h2>
-                        </div>
-                        <p class="mt-2 text-white">Total: {{ lowStockDrugs }}</p>
+                    <div @click="$router.push('/lowstock')" class="cursor-pointer">
+                        <DashboardCard title="Low Stock Drugs" icon="fas fa-boxes" bg="from-purple-400 to-purple-600"
+                            :lines="['Total: ' + lowStockDrugs]" />
                     </div>
-                    </Link>
                 </div>
             </div>
         </div>
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 sm:ml-[256px]">
-            <!-- Sales Graph -->
-            <!-- <SplineChart title="Sales Over Last 7 Days" :labels="dailyStats.map(stat => stat.date)"
-                :data="dailyStats.map(stat => stat.salesCount)" label="Sales" color="#10B981" />
-            <div class="p-4 transition duration-300 transform bg-white rounded shadow dark:bg-white hover:scale-105">
-                <DonutChart :title="'Visited Customers'" :data="[availableProducts, expiredProducts]"
-                    :labels="['Available', 'Expired']" />
-            </div> -->
-            <!-- Revenue Graph -->
-            <!-- <SplineChart title="Revenue Over Last 7 Days" :labels="dailyStats.map(stat => stat.date)"
-                :data="dailyStats.map(stat => stat.revenue)" label="Revenue" color="#EF4444" />
-            <div class="p-4 transition duration-300 transform bg-white rounded shadow dark:bg-white hover:scale-105">
-                <BarChart title="Monthly Revenue Trends" :labels="monthlyRevenueData.months"
-                    :data="monthlyRevenueData.revenues" />
-            </div> -->
-        </div>
 
         <!-- Footer -->
-        <Footer class="md:ml-[200px]" />
+        <footer
+            class="px-6 py-3 text-sm text-white transition-all duration-300 transform bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-t-2xl shadow-xl hover:scale-[1.02] dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 md:ml-[200px]">
+            <!-- Footer Info -->
+            <div class="space-y-1 text-center">
+                <button @click="$router.push('/cloud')"
+                    class="px-6 py-3 mb-4 font-semibold text-white transition-all duration-300 shadow-lg bg-gradient-to-r from-green-500 to-teal-500 rounded-xl hover:scale-105 hover:from-green-600 hover:to-teal-600 dark:from-green-400 dark:to-teal-400 dark:hover:from-green-500 dark:hover:to-teal-500">
+                    🚀 Auth Online
+                </button>
+                <p class="text-gray-300 dark:text-gray-400">© {{ currentYear }} {{ appName }}. All Rights Reserved.
+                </p>
+                <p class="text-gray-400 dark:text-gray-500">📞 +255 623 827 005</p>
+                <p class="text-gray-400 dark:text-gray-500">📧 automatextinfo@gmail.com</p>
+            </div>
+        </footer>
     </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import SplineChart from "../Components/SplineChart.vue";
-import SideBar from "../Components/SideBar.vue";
-import Footer from "../Components/Footer.vue";
-import DonutChart from "../Components/DonutChart.vue";
-import BarChart from "../Components/BarChart.vue";
-import { useRoute, useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import SideBar from '@/components/SideBar.vue'
+import DashboardCard from '@/components/DashboardCard.vue'
 
-const route = useRoute()
 const router = useRouter()
-const name = route.params.name
+
+const dailySales = ref(0)
+const dailyRevenue = ref(0)
+const totalSales = ref(0)
+const totalRevenue = ref(0)
+const availableProducts = ref(0)
+const expiringSoonProducts = ref(0)
+const expiredProducts = ref(0)
+const lowStockDrugs = ref(0)
 
 const formatTZS = (value) => {
     return new Intl.NumberFormat('en-TZ', {
         style: 'currency',
         currency: 'TZS',
         minimumFractionDigits: 2,
-    }).format(value);
-};
+    }).format(value)
+}
 
+const user = ref({ name: '', email: '', role: '' })
+
+onMounted(async () => {
+    const stored = localStorage.getItem('user')
+    if (stored) {
+        user.value = JSON.parse(stored)
+    } else {
+        const response = await window.electronAPI.getLoggedInUser()
+        if (response) {
+            user.value = response
+        } else {
+            router.push({ name: 'Login' })
+            return
+        }
+    }
+
+    const stats = await window.electronAPI.invoke('sales:get-stats')
+    dailySales.value = stats.dailySales
+    dailyRevenue.value = stats.dailyRevenue
+    totalSales.value = stats.totalSales
+    totalRevenue.value = stats.totalRevenue
+
+    const productStats = await window.electronAPI.invoke('products:get-dashboard-stats')
+
+    availableProducts.value = productStats.availableProducts
+    expiredProducts.value = productStats.expiredProducts
+    lowStockDrugs.value = productStats.lowStockDrugs
+    expiringSoonProducts.value = productStats.expiringSoonProducts
+
+})
+
+const currentYear = new Date().getFullYear()
+const appName = "Automate-XT"
 </script>

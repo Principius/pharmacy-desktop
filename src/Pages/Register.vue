@@ -25,13 +25,8 @@
 
                 <label class="block">
                     <span class="font-semibold text-gray-700">Role</span>
-                    <select v-model="role" required
+                    <input v-model="role" required placeholder="Enter role"
                         class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md focus:border-purple-500 focus:ring focus:ring-purple-300 focus:ring-opacity-50">
-                        <option disabled value="">Select a role</option>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                        <option value="pharmacist">Pharmacist</option>
-                    </select>
                 </label>
 
                 <label class="block">
@@ -45,11 +40,6 @@
                     Register
                 </button>
             </form>
-
-            <button @click="$router.push('/')"
-                class="mt-6 font-semibold text-purple-600 underline hover:text-purple-800">
-                Back to Home
-            </button>
         </div>
     </div>
 </template>
@@ -57,6 +47,9 @@
 <script setup>
 import Swal from 'sweetalert2'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router' // Import Vue Router
+
+const router = useRouter()
 
 const name = ref('')
 const email = ref('')
@@ -85,7 +78,10 @@ async function handleRegister() {
                 showConfirmButton: false,
             })
 
-            // Reset form
+            // Redirect to homepage
+            router.push('/')
+
+            // Optional: Reset form (if not redirecting to a different page)
             name.value = ''
             email.value = ''
             phone.value = ''

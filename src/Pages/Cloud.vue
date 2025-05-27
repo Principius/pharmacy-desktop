@@ -53,6 +53,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import Swal from 'sweetalert2'
 import Back from '@/components/Back.vue'
 
 const email = ref('')
@@ -67,6 +68,7 @@ async function submitLogin() {
   error.value = null
   success.value = false
   loading.value = true
+
   try {
     await window.electronAPI.cloudUser({
       email: email.value.trim(),
@@ -74,7 +76,21 @@ async function submitLogin() {
       tenantSubdomain: tenantSubdomain.value.trim(),
       deviceName: deviceName.value.trim(),
     })
+
     success.value = true
+
+    // Show success message with only "Restart Now"
+    await Swal.fire({
+      icon: 'success',
+      title: 'Connected to Cloud!',
+      text: 'The app needs to restart for changes to take effect.',
+      confirmButtonText: 'Restart Now',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    })
+
+    await window.electronAPI.restartApp() // Will quit and relaunch
+
   } catch (err) {
     error.value = err.message || 'Login failed'
   } finally {
@@ -82,3 +98,4 @@ async function submitLogin() {
   }
 }
 </script>
+

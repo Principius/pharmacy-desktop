@@ -1,6 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI', {
+
+  restartApp: () => ipcRenderer.invoke('restart-app'),
+
  addPharmacy: (formData) => ipcRenderer.invoke('add-pharmacy', formData),
    getPharmacyData: () => ipcRenderer.invoke('get-pharmacy-data'),
     // USER CRUD
@@ -14,6 +17,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     cloudUser: async (credentials) => ipcRenderer.invoke('cloud-login-user', credentials),
     registerUser: async (userData) => ipcRenderer.invoke('register-user', userData),
     loginUser: async (credentials) => ipcRenderer.invoke('login-user', credentials),
+    getLoggedInUser: () => ipcRenderer.invoke('get-logged-in-user'),
+     invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args),
 
     createProduct: async (productData) => ipcRenderer.invoke('create-product', productData),
     readProducts: async () => ipcRenderer.invoke('read-products'),

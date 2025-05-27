@@ -35,7 +35,8 @@ async function hasPharmacyData() {
 
 const routes = [
   { path: '/', name: 'Login', component: Login },
-  { path: '/dashboard/:name', name: 'Dashboard', component: Dashboard },
+  { path: '/register', name: 'Register', component: Register },
+ { path: '/dashboard', name: 'Dashboard', component: Dashboard },
   { path: '/products', name: 'Products', component: Index },
   { path: '/products/create', name: 'ProductsCreate', component: Create },
   { path: '/sales', name: 'Sales', component: List },

@@ -1,28 +1,31 @@
 {
   "name": "pharmacy-desktop",
   "version": "1.0.0",
-   "description": "Community pharmacy management desktop application",
+  "description": "Community pharmacy management desktop application",
   "author": "AfyaTrack",
   "private": true,
   "type": "module",
   "main": "electron/main.js",
   "scripts": {
-    "dev": "concurrently \"vite\" \"npm run electron:dev\"",
+    "dev": "cross-env NODE_ENV=development concurrently \"vite\" \"npm run electron:dev\"",
     "electron:dev": "wait-on http://localhost:5173 && electron .",
     "build:vue": "vite build",
     "build:electron": "electron-builder",
-    "build": "npm run build:vue && npm run build:electron"
+    "build": "npm run build:vue && npm run build:electron",
+    "start": "cross-env NODE_ENV=production electron .",
+    "dev:manual": "cross-env NODE_ENV=development electron ."
   },
   "build": {
     "appId": "com.afyatrack.pharmacy",
     "productName": "AfyaTrack",
-     "icon": "build/icon.ico",
+    "icon": "build/icon.ico",
     "directories": {
       "output": "dist_electron"
     },
     "files": [
       "dist/**/*",
-      "electron/main.js"
+      "electron/**/*",
+      "logic/**/*"
     ],
     "extraResources": [],
     "publish": [
@@ -42,6 +45,7 @@
     "better-sqlite3": "^11.10.0",
     "chart.js": "^4.4.9",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
     "electron-updater": "^6.6.2",
     "flowbite": "^3.1.2",
     "knex": "^3.1.0",
@@ -59,6 +63,7 @@
     "@vitejs/plugin-vue": "^5.2.3",
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
     "electron": "^36.2.1",
     "electron-builder": "^26.0.12",
     "postcss": "^8.5.3",

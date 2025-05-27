@@ -1,14 +1,22 @@
-import { app, BrowserWindow, dialog } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
-import { autoUpdater } from 'electron-updater'
+import pkg from 'electron-updater'
+const { autoUpdater } = pkg
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+// ✅ Set userData path BEFORE app is ready
+app.setPath('userData', path.join(app.getPath('appData'), 'AfyaTrack'))
+
+// ✅ Redirect cache path to a writable location inside userData
+const userDataPath = app.getPath('userData')
+app.setPath('cache', path.join(userDataPath, 'cache'))
+
 async function start() {
-  // Dynamically import and run IPC handlers setup
+  // Dynamic import of other handlers
   const ipcHandlersModule = await import('./ipcHandlers/ipcHandlers.js')
   ipcHandlersModule.default()
 
@@ -24,15 +32,15 @@ async function start() {
       }
     })
 
-    win.loadURL('http://localhost:5173')
-
-    // Optional: Open dev tools automatically in dev mode
-    // win.webContents.openDevTools()
+    if (process.env.NODE_ENV === 'development') {
+      win.loadURL('http://localhost:5173')
+    } else {
+      win.loadFile(path.join(__dirname, '../dist/index.html'))
+    }
   }
 
-  // Auto-updater setup
   function setupAutoUpdater() {
-    autoUpdater.autoDownload = false // Set to true if you want auto-download
+    autoUpdater.autoDownload = false
 
     autoUpdater.on('checking-for-update', () => {
       console.log('Checking for updates...')
@@ -40,7 +48,6 @@ async function start() {
 
     autoUpdater.on('update-available', (info) => {
       console.log('Update available:', info.version)
-      // Prompt user to download update
       dialog.showMessageBox(win, {
         type: 'info',
         title: 'Update Available',
@@ -62,9 +69,8 @@ async function start() {
     })
 
     autoUpdater.on('download-progress', (progressObj) => {
-      let log_message = `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${Math.round(progressObj.percent)}% (${progressObj.transferred}/${progressObj.total})`
+      const log_message = `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${Math.round(progressObj.percent)}% (${progressObj.transferred}/${progressObj.total})`
       console.log(log_message)
-      // Optionally send this progress to renderer process if you want UI feedback
     })
 
     autoUpdater.on('update-downloaded', () => {
@@ -83,8 +89,6 @@ async function start() {
   app.whenReady().then(() => {
     createWindow()
     setupAutoUpdater()
-
-    // Check for updates after the app is ready
     autoUpdater.checkForUpdates()
 
     app.on('activate', () => {
@@ -94,6 +98,12 @@ async function start() {
 
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
+  })
+
+  // ✅ IPC handler to restart the app (proper relaunch)
+  ipcMain.handle('restart-app', () => {
+    app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) })
+    app.exit(0)
   })
 }
 

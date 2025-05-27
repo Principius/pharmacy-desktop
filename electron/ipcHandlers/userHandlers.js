@@ -20,4 +20,8 @@ export default function registerUserHandlers(ipcMain) {
       return { success: false, error: err.message };
     }
   });
+
+  ipcMain.handle('get-logged-in-user', async () => {
+    return currentLoggedInUser
+  })
 }
