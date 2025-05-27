@@ -3,7 +3,7 @@ name: Build & Publish Electron App
 on:
   push:
     tags:
-      - 'v*.*.*'  # Trigger only on version tags like v1.0.0
+      - 'v*.*.*'  # Triggers on tags like v1.0.0, v1.1.2 etc.
 
 jobs:
   build-and-release:
@@ -24,10 +24,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build Electron App
-        run: npm run build
-
-      - name: Publish to GitHub Releases
+      - name: Build & Publish
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Works for public repos
         run: npx electron-builder --publish always
