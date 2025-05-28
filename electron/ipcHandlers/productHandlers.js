@@ -15,6 +15,26 @@ export default function registerProductHandlers() {
     }
   })
 
+  ipcMain.handle('product:get-expiry-stats', async () => {
+    const now = new Date().toISOString()
+
+    const [expired] = await db('products')
+      .whereNotNull('expire_date')
+      .where('expire_date', '<', now)
+      .count('id as count')
+
+    const [available] = await db('products')
+      .where(builder => {
+        builder.whereNull('expire_date').orWhere('expire_date', '>=', now)
+      })
+      .count('id as count')
+
+    return {
+      expired: expired.count || 0,
+      available: available.count || 0,
+    }
+  })
+
   ipcMain.handle('read-products', async () => {
     try {
       const products = await productLogic.getProducts()

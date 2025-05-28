@@ -11,15 +11,13 @@
                     <h2 class="text-3xl font-extrabold text-purple-600 dark:text-purple-400">
                         Welcome, {{ user.name }} 🎉
                     </h2>
-                    <p class="mt-4 text-lg leading-relaxed">
-                        You're now inside the <strong>Community Pharmacy Management Software</strong>.
-                        Feel <span class="font-semibold text-green-600 dark:text-green-400">free and confident</span> to
-                        manage all
-                        your pharmacy operations—sales, inventory, expiry tracking, and more.
-                    </p>
                     <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                         Navigate smartly. Act efficiently. Grow sustainably.
                     </p>
+                     <button @click="$router.push('/cloud')"
+                    class="px-6 py-3 mt-2 mb-2 font-semibold text-white transition-all duration-300 shadow-lg bg-gradient-to-r from-green-500 to-teal-500 rounded-xl hover:scale-105 hover:from-green-600 hover:to-teal-600 dark:from-green-400 dark:to-teal-400 dark:hover:from-green-500 dark:hover:to-teal-500">
+                    🚀 Register Online 
+                </button>
                 </div>
                 <!-- Dashboard Stats -->
                 <div class="grid gap-6 mb-10 md:grid-cols-2 lg:grid-cols-3 animate-fade-in">
@@ -59,6 +57,9 @@
                             :lines="['Total: ' + lowStockDrugs]" />
                     </div>
                 </div>
+                <div>
+                    <SalesCharts :graphData="graphStats" />
+                </div>
             </div>
         </div>
 
@@ -67,10 +68,6 @@
             class="px-6 py-3 text-sm text-white transition-all duration-300 transform bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-t-2xl shadow-xl hover:scale-[1.02] dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 md:ml-[200px]">
             <!-- Footer Info -->
             <div class="space-y-1 text-center">
-                <button @click="$router.push('/cloud')"
-                    class="px-6 py-3 mb-4 font-semibold text-white transition-all duration-300 shadow-lg bg-gradient-to-r from-green-500 to-teal-500 rounded-xl hover:scale-105 hover:from-green-600 hover:to-teal-600 dark:from-green-400 dark:to-teal-400 dark:hover:from-green-500 dark:hover:to-teal-500">
-                    🚀 Auth Online
-                </button>
                 <p class="text-gray-300 dark:text-gray-400">© {{ currentYear }} {{ appName }}. All Rights Reserved.
                 </p>
                 <p class="text-gray-400 dark:text-gray-500">📞 +255 623 827 005</p>
@@ -85,6 +82,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SideBar from '@/components/SideBar.vue'
 import DashboardCard from '@/components/DashboardCard.vue'
+import SalesCharts from '@/Pages/SalesCharts.vue'
 
 const router = useRouter()
 
@@ -134,6 +132,17 @@ onMounted(async () => {
     lowStockDrugs.value = productStats.lowStockDrugs
     expiringSoonProducts.value = productStats.expiringSoonProducts
 
+})
+
+const graphStats = ref([])
+
+onMounted(async () => {
+  try {
+    const data = await window.electronAPI.getGraphSalesStats()
+    graphStats.value = data
+  } catch (error) {
+    console.error('Error fetching dashboard graph stats:', error)
+  }
 })
 
 const currentYear = new Date().getFullYear()

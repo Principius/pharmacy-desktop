@@ -38,7 +38,17 @@ export default function sales(db) {
         query = query.where('sales.seller_id', sellerId)
       }
 
-      return await query
+      const results = await query
+
+      // Convert UTC -> EAT (UTC+3)
+      return results.map(sale => {
+        const utcDate = new Date(sale.created_at)
+        const eatDate = new Date(utcDate.getTime() + 3 * 60 * 60 * 1000) // Add 3 hours
+        return {
+          ...sale,
+          created_at_eat: eatDate.toISOString().replace('T', ' ').substring(0, 19) // "YYYY-MM-DD HH:mm:ss"
+        }
+      })
     },
 
     async findById(id) {

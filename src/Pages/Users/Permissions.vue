@@ -53,9 +53,19 @@ const users = ref([])
 
 const availablePermissions = [
     'canManageUsers',
-    'canManageSales',
-    'canViewOrders',
-    'canExportData',
+    'canEditSales',
+    'canDeleteSales',
+    'canAddExpenses',
+    'canAllowDiscount',
+    'canChangePermissions',
+    'canSyncProducts',
+    'canEditExpenses',
+    'canDeleteExpenses',
+    'canSeeRevenueGraphs',
+    'canEditPrices',
+    'canSyncSales',
+    'canSyncExpenses',
+    'canSyncDebtors',
 ]
 
 const togglePermission = (user, perm) => {

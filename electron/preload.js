@@ -3,8 +3,13 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('electronAPI', {
 
   restartApp: () => ipcRenderer.invoke('restart-app'),
+  onUpdateAvailable: (callback) => ipcRenderer.on('update-available', callback),
+  onUpdateProgress: (callback) => ipcRenderer.on('update-download-progress', callback),
+  onUpdateDownloaded: (callback) => ipcRenderer.on('update-downloaded', callback),
+  requestUpdateDownload: () => ipcRenderer.send('start-update-download'),
 
  addPharmacy: (formData) => ipcRenderer.invoke('add-pharmacy', formData),
+  pharmacyGetInfo: () => ipcRenderer.invoke('pharmacy:get-info'),
    getPharmacyData: () => ipcRenderer.invoke('get-pharmacy-data'),
     // USER CRUD
     getUsers: () => ipcRenderer.invoke('users:getAll'),
@@ -26,6 +31,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deleteProduct: async (id) => ipcRenderer.invoke('delete-product', id),
      getExpiredProducts: () => ipcRenderer.invoke('getExpiredProducts'),
      getExpiringSoonProducts: () => ipcRenderer.invoke('getExpiringSoonProducts'),
+     readDonutProducts: async () => ipcRenderer.invoke('product:get-expiry-stats'),
 
     // Sales
     createSale: async (salesData) => ipcRenderer.invoke('sales:create', salesData),
@@ -34,6 +40,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deleteSale: async (saleId) => ipcRenderer.invoke('sales:delete', saleId),
     getSaleById: async (id) => ipcRenderer.invoke('sales:getById', id),
     syncSalesToCloud: () => ipcRenderer.invoke('sales:sync-to-cloud'),
+    getGraphSalesStats: () => ipcRenderer.invoke('sales:get-graph-stats'),
+    getMonthlyRevenueStats: () => ipcRenderer.invoke('sales:get-monthly-revenue-stats'),
 
     // Products sync from cloud
     syncProductsFromCloud: () => ipcRenderer.invoke('products:sync-from-cloud'),

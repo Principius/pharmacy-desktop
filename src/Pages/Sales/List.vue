@@ -26,6 +26,19 @@
                 </button>
             </div>
         </div>
+        <div class="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center">
+            <label class="flex flex-col text-sm text-gray-700 dark:text-gray-300">
+                From
+                <input v-model="startDate" type="date"
+                    class="px-4 py-2 border border-gray-300 rounded dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100" />
+            </label>
+
+            <label class="flex flex-col text-sm text-gray-700 dark:text-gray-300">
+                To
+                <input v-model="endDate" type="date"
+                    class="px-4 py-2 border border-gray-300 rounded dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100" />
+            </label>
+        </div>
 
         <div class="overflow-x-auto border border-gray-200 rounded-lg dark:border-gray-700">
             <table class="w-full text-left table-auto">
@@ -70,7 +83,7 @@
                             </span>
                         </td>
                         <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
-                            {{ new Date(sale.created_at).toLocaleString() }}
+                            {{ formatToNairobi(sale.created_at) }}
                         </td>
                         <td class="px-5 py-3 space-x-3">
                             <button @click="goToEdit(sale)"
@@ -90,6 +103,14 @@
                         </td>
                     </tr>
                 </tbody>
+                <tfoot v-if="filteredSales.length > 0">
+                    <tr class="font-semibold bg-gray-100 dark:bg-gray-800">
+                        <td colspan="2" class="px-5 py-3 text-right text-gray-700 dark:text-gray-200">Totals:</td>
+                        <td class="px-5 py-3 text-gray-700 dark:text-gray-200">{{ totalQuantity }}</td>
+                        <td class="px-5 py-3 text-green-600">{{ totalAmount.toLocaleString() }} TZS</td>
+                        <td colspan="3"></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
@@ -100,11 +121,15 @@ import { onMounted, ref, computed } from 'vue'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
 import Back from '@/components/Back.vue'
+import dayjs, { formatToNairobi } from '@/utils/dayjs'
 
 const sales = ref([])
 const searchTerm = ref('')
 const isSyncing = ref(false)
 const router = useRouter()
+
+const startDate = ref('')
+const endDate = ref('')
 
 const fetchSales = async () => {
     sales.value = await window.electronAPI.getSales()
@@ -156,16 +181,31 @@ const syncSales = async () => {
 
 onMounted(fetchSales)
 
+// Filter by search AND date
 const filteredSales = computed(() => {
-    if (!searchTerm.value.trim()) return sales.value
-    const term = searchTerm.value.toLowerCase()
-    return sales.value.filter((sale) => {
-        return (
-            sale.product_name.toLowerCase().includes(term) ||
-            String(sale.id).includes(term) ||
-            String(sale.quantity_sold).includes(term) ||
-            String(sale.total_cost).includes(term)
-        )
+    return sales.value.filter(sale => {
+        const matchesSearch =
+            !searchTerm.value.trim() ||
+            sale.product_name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+            String(sale.id).includes(searchTerm.value) ||
+            String(sale.quantity_sold).includes(searchTerm.value) ||
+            String(sale.total_cost).includes(searchTerm.value)
+
+        const createdAt = dayjs(sale.created_at)
+
+        const matchesDate =
+            (!startDate.value || createdAt.isSameOrAfter(dayjs(startDate.value), 'day')) &&
+            (!endDate.value || createdAt.isSameOrBefore(dayjs(endDate.value), 'day'))
+
+        return matchesSearch && matchesDate
     })
+})
+
+const totalQuantity = computed(() => {
+    return filteredSales.value.reduce((sum, sale) => sum + Number(sale.quantity_sold), 0)
+})
+
+const totalAmount = computed(() => {
+    return filteredSales.value.reduce((sum, sale) => sum + Number(sale.total_cost), 0)
 })
 </script>
