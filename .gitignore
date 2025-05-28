@@ -18,7 +18,6 @@ coverage
 /cypress/screenshots/
 
 # Ignore build output folders
-dist/
 dist_electron/
 
 # Editor directories and files
