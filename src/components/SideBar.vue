@@ -162,7 +162,7 @@
                     </li>
 
                     <li>
-                        <Link @click="$router.push('/offline')"
+                        <Link @click="$router.push('/financials')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -174,7 +174,7 @@
                     </li>
 
                     <li>
-                        <Link @click="$router.push('/offline')"
+                        <Link @click="$router.push('/products/profits')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -186,7 +186,7 @@
                     </li>
 
                     <li>
-                        <Link @click="$router.push('/offline')"
+                        <Link @click="$router.push('/transfers')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -198,7 +198,7 @@
                     </li>
 
                     <li>
-                        <Link @click="$router.push('/offline')"
+                        <Link @click="$router.push('/products/sales')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -264,7 +264,7 @@
                         </Link>
                     </li>
                     <li>
-                        <Link @click="$router.push('/offline')"
+                        <Link @click="$router.push('/summaries')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
 
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"

@@ -4,6 +4,9 @@ import syncProductsFromCloud from '../../logic/syncProductsFromCloud.js'
 import db from '../db/connection.js';
 import { differenceInDays, differenceInMonths, formatISO } from 'date-fns'
 import { isAfter, isBefore, addDays } from 'date-fns'
+import syncSummariesFromCloud from '../../logic/syncSummariesFromCloud.js';
+import syncFinancialSummaries from '../../logic/syncFinancialSummaries.js';
+import syncProductProfits from '../../logic/syncProductProfits.js';
 
 export default function registerProductHandlers() {
   ipcMain.handle('create-product', async (_event, productData) => {
@@ -64,6 +67,32 @@ export default function registerProductHandlers() {
 
   ipcMain.handle('products:sync-from-cloud', async () => {
     return await syncProductsFromCloud()
+  })
+
+  ipcMain.handle('summaries:sync-from-cloud', async () => {
+    return await syncSummariesFromCloud()
+  })
+
+  ipcMain.handle('financials:sync-from-cloud', async () => {
+    return await syncFinancialSummaries()
+  })
+
+  ipcMain.handle('financials:get-latest', async () => {
+    return await db('financial_summaries')
+      .orderBy('sync_at', 'desc')
+      .first()
+  })
+
+  ipcMain.handle('summaries:get-latest', async () => {
+    return await db('summaries')
+      .orderBy('synced_at', 'desc')
+      .first()
+  })
+
+  ipcMain.handle('product-profits:get-latest', async () => {
+    return await db('product_profits')
+      .orderBy('updated_at', 'desc')
+      .first()
   })
 
   ipcMain.handle('getExpiredProducts', async () => {
@@ -161,5 +190,18 @@ export default function registerProductHandlers() {
       throw new Error('Error getting dashboard product stats.')
     }
   })
+
+  ipcMain.handle('product-profits:sync', async () => {
+    return await syncProductProfits()
+  });
+
+  ipcMain.handle('product-profits:get-summary', async () => {
+    const summary = await db('product_profits_summary').first();
+    return summary;
+  });
+
+  ipcMain.handle('product-profits:get-products', async () => {
+    return await db('product_profits').select();
+  });
 
 }
