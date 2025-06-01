@@ -56,11 +56,23 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getSalesProfitSummary: () => ipcRenderer.invoke('product-profits:get-summary'),
 
   getStockTransfers: () => ipcRenderer.invoke('transfer:sync-from-cloud'),
-   rejectStockTransfer: (id) => ipcRenderer.invoke('reject-stock-transfer', id),
+  rejectStockTransfer: (id) => ipcRenderer.invoke('reject-stock-transfer', id),
   approveStockTransfer: (id) => ipcRenderer.invoke('approve-stock-transfer', id),
+  returnRejectedStockTransfer: (id) => ipcRenderer.invoke('transfer:transfer-restore', id),
   getPendingStockTransfers: () => ipcRenderer.invoke('transfer:transfer-pending'),
   getStockTransferHistory: () => ipcRenderer.invoke('transfer:transfer-history'),
-   submitStockTransfer: (payload) => ipcRenderer.invoke('transfer:submit-stock-transfer', payload),
+  getRejectedStockTransfers: () => ipcRenderer.invoke('transfer:transfer-rejected'),
+  submitStockTransfer: (payload) => ipcRenderer.invoke('transfer:submit-stock-transfer', payload),
+
+  //Products
+  downloadProductTemplate: () => ipcRenderer.invoke('download-product-template'),
+  importProducts: (fileObj) => ipcRenderer.invoke('import-products', fileObj),
+  syncProductsToSheet: () => ipcRenderer.invoke('sync-products-to-sheet'),
+  openGoogleSheet: () => ipcRenderer.invoke('open-google-sheet'),
+  syncSheetToProducts: () => ipcRenderer.invoke('sync-sheet-to-products'),
+
+  getLatestProducts: () => ipcRenderer.invoke('get-latest-products'),
+  changeProduct: (product) => ipcRenderer.invoke('change-product', product),
 
   //Inventory
   getGroupedInventory: () => ipcRenderer.invoke('getGroupedInventory'),

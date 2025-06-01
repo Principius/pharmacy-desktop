@@ -7,7 +7,7 @@ export default async function loginAndSync({ email, password, deviceName, tenant
   if (!tenantSubdomain) throw new Error('Tenant subdomain is required')
 
   // Use the tenantSubdomain passed to the function dynamically
-  const tenantUrl = `http://${tenantSubdomain}.afyatrack.co.tz`
+  const tenantUrl = `https://${tenantSubdomain}.afyatrack.co.tz`
 
   try {
     const response = await axios.post(`${tenantUrl}/api/electron/login`, {

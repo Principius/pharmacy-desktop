@@ -80,6 +80,23 @@ const expenses = ref([])
 const showForm = ref(false)
 const editData = ref(null)
 
+async function confirmInternetAction(callback) {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Internet Required',
+        text: 'This action requires an internet connection. Do you want to continue?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, continue',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (isConfirmed) {
+        callback();
+    }
+}
+
 async function fetchExpenses() {
     expenses.value = await window.electronAPI.readExpenses()
 }
@@ -125,29 +142,32 @@ async function deleteExpense(id) {
 
 onMounted(fetchExpenses)
 
-async function syncExpenses() {
-    const result = await window.electronAPI.syncExpensesToCloud()
+function syncExpenses() {
+    confirmInternetAction(async () => {
+        const result = await window.electronAPI.syncExpensesToCloud();
 
-    if (result.status === 'success') {
-        Swal.fire({
-            icon: 'success',
-            title: 'Sync Complete',
-            text: `${result.synced} expenses synced to cloud.`,
-        })
-        fetchExpenses()
-    } else if (result.status === 'no_data') {
-        Swal.fire({
-            icon: 'info',
-            title: 'Nothing to Sync',
-            text: result.message,
-        })
-    } else {
-        Swal.fire({
-            icon: 'error',
-            title: 'Sync Failed',
-            text: result.message,
-        })
-    }
+        if (result.status === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Sync Complete',
+                text: `${result.synced} expenses synced to cloud.`,
+            });
+            fetchExpenses();
+        } else if (result.status === 'no_data') {
+            Swal.fire({
+                icon: 'info',
+                title: 'Nothing to Sync',
+                text: result.message,
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Sync Failed',
+                text: result.message,
+            });
+        }
+    });
 }
+
 
 </script>

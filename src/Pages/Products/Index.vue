@@ -13,6 +13,23 @@ function formatDate(dateStr) {
   return d.toLocaleDateString()
 }
 
+async function confirmInternetAction(callback) {
+  const { isConfirmed } = await Swal.fire({
+    title: 'Internet Required',
+    text: 'This action requires an internet connection. Do you want to continue?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, continue',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (isConfirmed) {
+    callback();
+  }
+}
+
 async function loadProducts() {
   loading.value = true
   try {
@@ -29,22 +46,26 @@ async function loadProducts() {
   }
 }
 
-async function syncFromCloud() {
-  loading.value = true
-  try {
-    const result = await window.electronAPI.syncProductsFromCloud()
-    if (result.status === 'success') {
-      await loadProducts()
-      Swal.fire('Success', `Synced ${result.synced} products from cloud.`, 'success')
-    } else {
-      Swal.fire('Info', result.message || 'No new products to sync.', 'info')
+function syncFromCloud() {
+  confirmInternetAction(async () => {
+    loading.value = true;
+    try {
+      const result = await window.electronAPI.syncProductsFromCloud();
+
+      if (result.status === 'success') {
+        await loadProducts();
+        Swal.fire('Success', `Synced ${result.synced} products from cloud.`, 'success');
+      } else {
+        Swal.fire('Info', result.message || 'No new products to sync.', 'info');
+      }
+    } catch (error) {
+      Swal.fire('Error', error.message || 'Failed to sync from cloud', 'error');
+    } finally {
+      loading.value = false;
     }
-  } catch (error) {
-    Swal.fire('Error', error.message || 'Failed to sync from cloud', 'error')
-  } finally {
-    loading.value = false
-  }
+  });
 }
+
 
 const filteredProducts = computed(() => {
   const query = searchQuery.value.toLowerCase()
@@ -55,21 +76,49 @@ const filteredProducts = computed(() => {
   )
 })
 
+const downloadTemplate = () => {
+  confirmInternetAction(async () => {
+    const result = await window.electronAPI.downloadProductTemplate();
+    if (result.status === 'success') {
+      Swal.fire('Downloaded', 'Template downloaded to: ' + result.path, 'success');
+    } else if (result.status !== 'cancelled') {
+      Swal.fire('Failed', 'Failed to download template: ' + result.message, 'error');
+    }
+  });
+};
+
+
 onMounted(() => {
   loadProducts()
 })
 </script>
 <template>
-  <div class="px-4 py-6 mx-auto transition-colors duration-300 bg-white rounded-lg shadow max-w-7xl dark:bg-gray-900">
+  <div class="px-4 py-3 mx-auto transition-colors duration-300 bg-white rounded-lg shadow max-w-7xl dark:bg-gray-900">
+    <Back />
+    <button
+      class="fixed z-50 px-6 py-3 mt-48 font-semibold text-white transition-all bg-purple-600 rounded-full shadow-lg right-6 hover:bg-purple-700"
+      @click="$router.push('/latest')">
+      Edit Products
+    </button>
     <div class="flex flex-col items-center justify-between gap-4 mb-6 md:flex-row md:items-center">
-        <Back />
       <div class="flex items-center justify-center w-full space-x-4 md:w-auto md:justify-start">
         <h2 class="text-3xl font-extrabold text-center text-gray-800 dark:text-white">
           Products List
         </h2>
       </div>
-
+      <button @click="$router.push('/sheet')"
+        class="flex items-center px-4 py-2 font-medium text-white transition-transform duration-300 rounded-lg shadow-md bg-gradient-to-r from-indigo-500 to-indigo-600 hover:scale-105">
+        Live Stock-Taking
+      </button>
       <div class="flex flex-col items-center justify-end w-full gap-2 md:flex-row md:w-auto">
+        <button @click="downloadTemplate"
+          class="px-6 py-3 font-semibold text-white transition bg-green-600 rounded-lg hover:bg-green-700">
+          Download Product Excel Template
+        </button>
+        <button @click="$router.push('/import')"
+          class="flex items-center px-4 py-2 font-medium text-white transition-transform duration-300 rounded-lg shadow-md bg-gradient-to-r from-indigo-500 to-indigo-600 hover:scale-105">
+          Import Excel
+        </button>
         <input v-model="searchQuery" type="text" placeholder="Search by name, brand, category..."
           class="w-full px-4 py-2 text-sm text-gray-800 bg-white border rounded-md shadow-sm dark:text-white dark:bg-gray-800 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400 md:w-72" />
         <button @click="syncFromCloud" :disabled="loading"

@@ -131,6 +131,23 @@ const router = useRouter()
 const startDate = ref('')
 const endDate = ref('')
 
+async function confirmInternetAction(callback) {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Internet Required',
+        text: 'This action requires an internet connection. Do you want to continue?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, continue',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (isConfirmed) {
+        callback();
+    }
+}
+
 const fetchSales = async () => {
     sales.value = await window.electronAPI.getSales()
 }
@@ -158,26 +175,27 @@ const deleteSale = async (id) => {
     }
 }
 
-const syncSales = async () => {
-    isSyncing.value = true
-    try {
-        const result = await window.electronAPI.syncSalesToCloud()
+const syncSales = () => {
+    confirmInternetAction(async () => {
+        isSyncing.value = true;
+        try {
+            const result = await window.electronAPI.syncSalesToCloud();
 
-        if (result.status === 'success') {
-            await Swal.fire('Synced!', `${result.synced} sales uploaded to cloud.`, 'success')
-            // Refresh the page after success
-            window.location.reload()
-        } else if (result.status === 'no_data') {
-            Swal.fire('No New Sales', result.message, 'info')
-        } else {
-            Swal.fire('Error', result.message, 'error')
+            if (result.status === 'success') {
+                await Swal.fire('Synced!', `${result.synced} sales uploaded to cloud.`, 'success');
+                window.location.reload(); // Refresh page after successful sync
+            } else if (result.status === 'no_data') {
+                Swal.fire('No New Sales', result.message, 'info');
+            } else {
+                Swal.fire('Error', result.message, 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Failed to sync sales.', 'error');
+        } finally {
+            isSyncing.value = false;
         }
-    } catch (error) {
-        Swal.fire('Error', 'Failed to sync sales.', 'error')
-    } finally {
-        isSyncing.value = false
-    }
-}
+    });
+};
 
 onMounted(fetchSales)
 

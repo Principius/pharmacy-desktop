@@ -7,6 +7,8 @@ import { isAfter, isBefore, addDays } from 'date-fns'
 import syncSummariesFromCloud from '../../logic/syncSummariesFromCloud.js';
 import syncFinancialSummaries from '../../logic/syncFinancialSummaries.js';
 import syncProductProfits from '../../logic/syncProductProfits.js';
+import getLatestProducts from '../../logic/getLatestProducts.js';
+import changeProduct from '../../logic/updateProducts.js';
 
 export default function registerProductHandlers() {
   ipcMain.handle('create-product', async (_event, productData) => {
@@ -204,4 +206,11 @@ export default function registerProductHandlers() {
     return await db('product_profits').select();
   });
 
+  ipcMain.handle('get-latest-products', async () => {
+    return await getLatestProducts()
+  })
+
+  ipcMain.handle('change-product', async (_event, product) => {
+  return await changeProduct(product)
+})
 }

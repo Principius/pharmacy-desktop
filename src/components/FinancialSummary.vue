@@ -97,38 +97,57 @@ const startDate = ref('')
 const endDate = ref('')
 const loading = ref(false)
 
+async function confirmInternetAction(callback) {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Internet Required',
+        text: 'This action requires an internet connection. Do you want to continue?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, continue',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (isConfirmed) {
+        await callback();
+    }
+}
+
 const loadSummaries = async () => {
     const latest = await window.electronAPI.getLatestFinancials()
     allSummaries.value = Array.isArray(latest) ? latest : [latest]
 }
 
-const syncSummary = async () => {
-    loading.value = true
-    try {
-        await window.electronAPI.syncFinancialSummaries()
-        await loadSummaries()
-        Swal.fire({
-            icon: 'success',
-            title: 'Sync Complete',
-            text: 'Financial data has been synced successfully.',
-            background: '#fff',
-            color: '#333',
-            confirmButtonColor: '#6366f1'
-        })
-    } catch (err) {
-        console.error('Sync failed:', err)
-        Swal.fire({
-            icon: 'error',
-            title: 'Sync Failed',
-            text: 'Could not sync financial data. Please try again later.',
-            background: '#fff',
-            color: '#333',
-            confirmButtonColor: '#ef4444'
-        })
-    } finally {
-        loading.value = false
-    }
-}
+const syncSummary = () => {
+    confirmInternetAction(async () => {
+        loading.value = true;
+        try {
+            await window.electronAPI.syncFinancialSummaries();
+            await loadSummaries();
+            Swal.fire({
+                icon: 'success',
+                title: 'Sync Complete',
+                text: 'Financial data has been synced successfully.',
+                background: '#fff',
+                color: '#333',
+                confirmButtonColor: '#6366f1'
+            });
+        } catch (err) {
+            console.error('Sync failed:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Sync Failed',
+                text: 'Could not sync financial data. Please try again later.',
+                background: '#fff',
+                color: '#333',
+                confirmButtonColor: '#ef4444'
+            });
+        } finally {
+            loading.value = false;
+        }
+    });
+};
 
 const format = (value) => {
     if (!value) return '0.00'

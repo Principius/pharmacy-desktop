@@ -87,6 +87,23 @@ const loading = ref(false);
 const productProfits = ref([]);
 const summary = ref(null);
 
+async function confirmInternetAction(callback) {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Internet Required',
+        text: 'This action requires an internet connection. Do you want to continue?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, continue',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (isConfirmed) {
+        await callback();
+    }
+}
+
 function format(value) {
     return parseFloat(value).toLocaleString('en-US', {
         style: 'currency',
@@ -102,32 +119,35 @@ async function loadData() {
     loading.value = false;
 }
 
-async function syncProfits() {
-    loading.value = true;
+function syncProfits() {
+    confirmInternetAction(async () => {
+        loading.value = true;
 
-    try {
-        const result = await window.electronAPI.syncProfitSales();
+        try {
+            const result = await window.electronAPI.syncProfitSales();
 
-        await Swal.fire({
-            icon: 'success',
-            title: 'Synced!',
-            text: result.message || 'Profits synced successfully.',
-            confirmButtonColor: '#2563eb', // blue-600
-            background: document.documentElement.classList.contains('dark') ? '#1f2937' : '#fff',
-            color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#111827',
-        });
-    } catch (error) {
-        await Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.message || 'Something went wrong while syncing.',
-            confirmButtonColor: '#ef4444', // red-500
-        });
-    }
-
-    await loadData();
+            await Swal.fire({
+                icon: 'success',
+                title: 'Synced!',
+                text: result.message || 'Profits synced successfully.',
+                confirmButtonColor: '#2563eb',
+                background: document.documentElement.classList.contains('dark') ? '#1f2937' : '#fff',
+                color: document.documentElement.classList.contains('dark') ? '#f3f4f6' : '#111827',
+            });
+        } catch (error) {
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'Something went wrong while syncing.',
+                confirmButtonColor: '#ef4444',
+            });
+        } finally {
+            loading.value = false;
+            await loadData();
+        }
+    });
 }
+
 
 onMounted(loadData);
 </script>
-

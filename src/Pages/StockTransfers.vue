@@ -2,6 +2,23 @@
     <div class="max-w-6xl p-6 mx-auto">
         <Back />
         <div class="mt-4 mb-8">
+            <div class="flex flex-wrap items-center gap-4 mb-4">
+                <button @click="$router.push('/transfers/history')"
+                    class="px-6 py-3 font-semibold text-white transition-all duration-200 bg-gray-600 rounded-xl hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600">
+                    Transfer History
+                </button>
+
+                <button @click="$router.push('/transfers/pending')"
+                    class="px-6 py-3 font-semibold text-white transition-all duration-200 bg-purple-600 rounded-xl hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600">
+                    Pending Transfers
+                </button>
+
+                <button @click="$router.push('/transfers/rejected')"
+                    class="px-6 py-3 font-semibold text-white transition-all duration-200 bg-purple-600 rounded-xl hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600">
+                    Rejected Transfers
+                </button>
+            </div>
+
             <h2 class="mb-2 text-2xl font-bold text-gray-800 dark:text-black">Pharmacies (for transfer)</h2>
             <select v-model="toPharmacy"
                 class="w-full p-3 text-gray-700 transition bg-white border border-gray-300 rounded-md dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -12,28 +29,17 @@
             </select>
         </div>
 
-        <div class="flex flex-col items-center gap-4 mb-10 sm:flex-row sm:justify-start">
+        <div class="flex flex-wrap items-center gap-4 mb-10 sm:flex-nowrap sm:gap-6">
+
             <button @click="submitTransfer" :disabled="loading"
-                class="flex items-center justify-center gap-2 px-6 py-3 font-semibold text-white transition-all duration-200 bg-blue-600 rounded-xl hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed dark:bg-blue-500 dark:hover:bg-blue-600 dark:disabled:bg-blue-300">
+                class="flex items-center justify-center gap-2 px-6 py-3 ml-auto font-semibold text-white transition-all duration-200 bg-blue-600 rounded-xl hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed dark:bg-blue-500 dark:hover:bg-blue-600 dark:disabled:bg-blue-300">
                 <svg v-if="loading" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l5-5-5-5v4A12 12 0 002 12h2z">
-                    </path>
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l5-5-5-5v4A12 12 0 002 12h2z" />
                 </svg>
                 <span>{{ loading ? 'Transferring...' : 'Transfer Selected Products' }}</span>
             </button>
-
-            <button @click="$router.push('/transfers/history')"
-                class="px-6 py-3 font-semibold text-white transition-all duration-200 bg-gray-600 rounded-xl hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600">
-                Transfer History
-            </button>
-
-            <button @click="$router.push('/transfers/pending')"
-                class="px-6 py-3 font-semibold text-white transition-all duration-200 bg-purple-600 rounded-xl hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600">
-                Pending Transfers
-            </button>
         </div>
-
 
         <h2 class="mb-4 text-2xl font-bold text-gray-800 dark:text-black">Available Products</h2>
 
@@ -82,6 +88,23 @@ const products = ref([]);
 const toPharmacy = ref('');
 const loading = ref(false);
 
+async function confirmInternetAction(callback) {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Internet Required',
+        text: 'This action requires an internet connection. Do you want to continue?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, continue',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (isConfirmed) {
+        await callback();
+    }
+}
+
 async function getStockTransfers() {
     try {
         return await window.electronAPI.getStockTransfers();
@@ -101,43 +124,46 @@ onMounted(async () => {
     }));
 });
 
-async function submitTransfer() {
-    if (!toPharmacy.value) {
-        Swal.fire('Error', 'Please select a destination pharmacy.', 'error');
-        return;
-    }
+function submitTransfer() {
+    confirmInternetAction(async () => {
+        if (!toPharmacy.value) {
+            Swal.fire('Error', 'Please select a destination pharmacy.', 'error');
+            return;
+        }
 
-    const selectedProducts = products.value
-        .filter(p => p.selected && p.transfer_quantity > 0)
-        .map(p => ({
-            product_id: p.id,
-            quantity: p.transfer_quantity
-        }));
+        const selectedProducts = products.value
+            .filter(p => p.selected && p.transfer_quantity > 0)
+            .map(p => ({
+                product_id: p.id,
+                quantity: p.transfer_quantity
+            }));
 
-    if (selectedProducts.length === 0) {
-        Swal.fire('Error', 'Please select at least one product and enter quantity.', 'error');
-        return;
-    }
+        if (selectedProducts.length === 0) {
+            Swal.fire('Error', 'Please select at least one product and enter quantity.', 'error');
+            return;
+        }
 
-    loading.value = true;
+        loading.value = true;
 
-    try {
-        const result = await window.electronAPI.submitStockTransfer({
-            to_pharmacy: toPharmacy.value,
-            products: selectedProducts,
-        });
+        try {
+            const result = await window.electronAPI.submitStockTransfer({
+                to_pharmacy: toPharmacy.value,
+                products: selectedProducts,
+            });
 
-        Swal.fire('Success', result.message, 'success');
-        products.value.forEach(p => {
-            p.selected = false;
-            p.transfer_quantity = null;
-        });
-        toPharmacy.value = '';
-    } catch (err) {
-        Swal.fire('Error', err.message || 'Stock transfer failed.', 'error');
-    } finally {
-        loading.value = false;
-    }
+            Swal.fire('Success', result.message, 'success');
+
+            products.value.forEach(p => {
+                p.selected = false;
+                p.transfer_quantity = null;
+            });
+            toPharmacy.value = '';
+        } catch (err) {
+            Swal.fire('Error', err.message || 'Stock transfer failed.', 'error');
+        } finally {
+            loading.value = false;
+        }
+    });
 }
 
 </script>

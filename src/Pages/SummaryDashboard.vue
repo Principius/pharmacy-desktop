@@ -41,37 +41,57 @@ import Back from '@/components/Back.vue'
 const summary = ref(null)
 const loading = ref(false)
 
+async function confirmInternetAction(callback) {
+    const { isConfirmed } = await Swal.fire({
+        title: 'Internet Required',
+        text: 'This action requires an internet connection. Do you want to continue?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, continue',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (isConfirmed) {
+        await callback();
+    }
+}
+
 const loadSummary = async () => {
     loading.value = true
     summary.value = await window.electronAPI.getLatest()
     loading.value = false
 }
 
-const syncSummaries = async () => {
-    loading.value = true
-    const result = await window.electronAPI.syncSummariesFromCloud()
-    loading.value = false
+const syncSummaries = () => {
+    confirmInternetAction(async () => {
+        loading.value = true;
+        const result = await window.electronAPI.syncSummariesFromCloud();
+        loading.value = false;
 
-    if (result.status === 'success') {
-        Swal.fire({
-            icon: 'success',
-            title: '✅ Synced!',
-            text: result.message,
-            toast: true,
-            position: 'top-end',
-            timer: 3000,
-            showConfirmButton: false,
-        })
-    } else {
-        Swal.fire({
-            icon: 'error',
-            title: '❌ Sync Failed',
-            text: result.message || 'Something went wrong!',
-        })
-    }
+        if (result.status === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: '✅ Synced!',
+                text: result.message,
+                toast: true,
+                position: 'top-end',
+                timer: 3000,
+                showConfirmButton: false,
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: '❌ Sync Failed',
+                text: result.message || 'Something went wrong!',
+            });
+        }
 
-    await loadSummary()
-}
+        await loadSummary();
+    });
+};
+
 
 onMounted(loadSummary)
 

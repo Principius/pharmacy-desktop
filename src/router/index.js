@@ -29,6 +29,10 @@ import ProductSales from '@/Pages/ProductSales.vue';
 import StockTransfers from '@/Pages/StockTransfers.vue';
 import StockTransferHistory from '@/Pages/StockTransferHistory.vue';
 import PendingStockTransfers from '@/Pages/PendingStockTransfers.vue';
+import RejectedTransfers from '@/Pages/RejectedTransfers.vue';
+import Import from '@/Pages/Products/Import.vue';
+import Sheet from '@/Pages/Products/Sheet.vue';
+import ProductList from '@/Pages/ProductList.vue';
 
 async function hasPharmacyData() {
   try {
@@ -61,9 +65,13 @@ const routes = [
   { path: '/expired', name: 'Expired', component: Expired },
   { path: '/expired/soon', name: 'ExpiredSoon', component: ExpiringSoon },
   { path: '/pharmacy', name: 'Pharmacy', component: Pharmacy },
-  { path: '/order', name: 'Order', component: Order },
-  { path: '/transfers', name: 'PendingStockTransfers', component: StockTransfers },
-   { path: '/transfers/pending', name: 'Order', component: PendingStockTransfers },
+  { path: '/orders', name: 'Order', component: Order },
+   { path: '/sheet', name: 'Sheet', component: Sheet },
+   { path: '/import', name: 'Import', component: Import },
+    { path: '/latest', name: 'ProductList', component: ProductList },
+  { path: '/transfers/rejected', name: 'RejectedTransfers', component: RejectedTransfers },
+  { path: '/transfers', name: 'StockTransfers', component: StockTransfers },
+   { path: '/transfers/pending', name: 'PendingStockTransfers', component: PendingStockTransfers },
   { path: '/transfers/history', name: 'StockTransferHistory', component: StockTransferHistory },
   { path: '/products/sales', name: 'ProductSales', component: ProductSales },
   { path: '/products/profits', name: 'ProductProfits', component: ProductProfits },
