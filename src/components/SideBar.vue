@@ -81,10 +81,12 @@
     </button>
 
     <aside id="logo-sidebar"
-         class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform duration-300 ease-in-out transform border-r border-gray-200 shadow-xl bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-800 dark:border-gray-700"
-        :class="{ '-translate-x-full': !isSidebarVisibleOnSmallScreen, 'sm:translate-x-0': true }" aria-label="Sidebar">
+        class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform duration-300 ease-in-out transform border-r border-gray-200 shadow-xl bg-gradient-to-br from-white to-gray-100 dark:from-gray-900 dark:to-gray-800 dark:border-gray-700"
+        :class="{
+            '-translate-x-full': !isSidebarVisibleOnSmallScreen,
+            'sm:translate-x-0': true,
+        }" aria-label="Sidebar">
         <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
-
             <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
                 <ul class="space-y-2 font-medium">
                     <li>
@@ -162,7 +164,7 @@
                     </li>
 
                     <li>
-                        <Link @click="$router.push('/offline')"
+                        <Link @click="$router.push('/financials')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -174,7 +176,7 @@
                     </li>
 
                     <li>
-                        <Link @click="$router.push('/offline')"
+                        <Link @click="$router.push('/products/profits')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -186,7 +188,7 @@
                     </li>
 
                     <li>
-                        <Link @click="$router.push('/offline')"
+                        <Link @click="$router.push('/transfers')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -198,7 +200,7 @@
                     </li>
 
                     <li>
-                        <Link @click="$router.push('/offline')"
+                        <Link @click="$router.push('/products/sales')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -211,7 +213,6 @@
                     <li>
                         <Link @click="$router.push('/debtors')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -222,7 +223,7 @@
                         </Link>
                     </li>
                     <li>
-                        <Link @click="$router.push('/order')"
+                        <Link @click="$router.push('/orders')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -231,6 +232,32 @@
                         </svg>
 
                         <span class="flex-1 ms-3 whitespace-nowrap">Generate Orders</span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link @click="$router.push('/suggestions')"
+                            class="cursor-pointer flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <svg class="w-[27px] h-[27px] text-gray-800 dark:text-white" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M11 21V2.352A3.451 3.451 0 0 0 9.5 2a3.5 3.5 0 0 0-3.261 2.238A3.5 3.5 0 0 0 4.04 8.015a3.518 3.518 0 0 0-.766 1.128c-.042.1-.064.209-.1.313a3.34 3.34 0 0 0-.106.344 3.463 3.463 0 0 0 .02 1.468A4.017 4.017 0 0 0 2.3 12.5l-.015.036a3.861 3.861 0 0 0-.216.779A3.968 3.968 0 0 0 2 14c.003.24.027.48.072.716a4 4 0 0 0 .235.832c.006.014.015.027.021.041a3.85 3.85 0 0 0 .417.727c.105.146.219.285.342.415.072.076.148.146.225.216.1.091.205.179.315.26.11.081.2.14.308.2.02.013.039.028.059.04v.053a3.506 3.506 0 0 0 3.03 3.469 3.426 3.426 0 0 0 4.154.577A.972.972 0 0 1 11 21Zm10.934-7.68a3.956 3.956 0 0 0-.215-.779l-.017-.038a4.016 4.016 0 0 0-.79-1.235 3.417 3.417 0 0 0 .017-1.468 3.387 3.387 0 0 0-.1-.333c-.034-.108-.057-.22-.1-.324a3.517 3.517 0 0 0-.766-1.128 3.5 3.5 0 0 0-2.202-3.777A3.5 3.5 0 0 0 14.5 2a3.451 3.451 0 0 0-1.5.352V21a.972.972 0 0 1-.184.546 3.426 3.426 0 0 0 4.154-.577A3.506 3.506 0 0 0 20 17.5v-.049c.02-.012.039-.027.059-.04.106-.064.208-.13.308-.2s.214-.169.315-.26c.077-.07.153-.14.225-.216a4.007 4.007 0 0 0 .459-.588c.115-.176.215-.361.3-.554.006-.014.015-.027.021-.041.087-.213.156-.434.205-.659.013-.057.024-.115.035-.173.046-.237.07-.478.073-.72a3.948 3.948 0 0 0-.066-.68Z" />
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Customer Suggestions</span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link @click="$router.push('/pending')"
+                            class="cursor-pointer flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M12.268 6A2 2 0 0 0 14 9h1v1a2 2 0 0 0 3.04 1.708l-.311 1.496a1 1 0 0 1-.979.796H8.605l.208 1H16a3 3 0 1 1-2.83 2h-2.34a3 3 0 1 1-4.009-1.76L4.686 5H4a1 1 0 0 1 0-2h1.5a1 1 0 0 1 .979.796L6.939 6h5.329Z" />
+                            <path
+                                d="M18 4a1 1 0 1 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0V8h2a1 1 0 1 0 0-2h-2V4Z" />
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">New Purchase</span>
                         </Link>
                     </li>
                     <li>
@@ -250,7 +277,6 @@
                     <li>
                         <Link @click="$router.push('/permissions')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                             viewBox="0 0 24 24">
@@ -264,9 +290,8 @@
                         </Link>
                     </li>
                     <li>
-                        <Link @click="$router.push('/offline')"
+                        <Link @click="$router.push('/summaries')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -279,7 +304,6 @@
                     <li>
                         <Link @click="$router.push('/expired/soon')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-
                         <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                             viewBox="0 0 24 24">
@@ -291,7 +315,20 @@
                         <span class="flex-1 ms-3 whitespace-nowrap">Expiration</span>
                         </Link>
                     </li>
+                    <li>
+                        <Link @click="$router.push('/mobile')"
+                            class="cursor-pointer flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path fill-rule="evenodd"
+                                d="M5 4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4Zm12 12V5H7v11h10Zm-5 1a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                                clip-rule="evenodd" />
+                        </svg>
 
+                        <span class="flex-1 ms-3 whitespace-nowrap">Mobile App</span>
+                        </Link>
+                    </li>
                     <li>
                         <button as="button" @click="$router.push('/')"
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
@@ -308,15 +345,14 @@
             </div>
         </div>
     </aside>
-    <div class="p-4 sm:ml-64 sm:mt-12">
-    </div>
+    <div class="p-4 sm:ml-64 sm:mt-12"></div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 
-const pharmacyName = ref('Pharmacy')
+const pharmacyName = ref("Pharmacy");
 
 // State for user menu visibility
 const isUserMenuOpen = ref(false);
@@ -335,40 +371,38 @@ const isReportsDropdownOpen = ref(false);
 
 // Capitalize function
 const capitalizeWords = (str) => {
-    return str.toUpperCase()
-}
+    return str.toUpperCase();
+};
 
 // Fetch pharmacy name on load
 onMounted(async () => {
     try {
-        const result = await window.electronAPI.getPharmacyData()
+        const result = await window.electronAPI.getPharmacyData();
         if (result?.name) {
-            pharmacyName.value = capitalizeWords(result.name)
+            pharmacyName.value = capitalizeWords(result.name);
         }
     } catch (error) {
-        console.error('Failed to load pharmacy name:', error)
+        console.error("Failed to load pharmacy name:", error);
     }
-})
+});
 
 // User info (from localStorage or Electron)
-const user = ref({ name: '', email: '', role: '' })
+const user = ref({ name: "", email: "", role: "" });
 
 onMounted(async () => {
-  const stored = localStorage.getItem('user')
-  if (stored) {
-    user.value = JSON.parse(stored)
-  } else {
-    const response = await window.electronAPI.getLoggedInUser()
-    if (response) {
-      user.value = response
+    const stored = localStorage.getItem("user");
+    if (stored) {
+        user.value = JSON.parse(stored);
     } else {
-      router.push({ name: 'Login' })
+        const response = await window.electronAPI.getLoggedInUser();
+        if (response) {
+            user.value = response;
+        } else {
+            router.push({ name: "Login" });
+        }
     }
-  }
-})
-
+});
 </script>
-
 
 <style scoped>
 footer {

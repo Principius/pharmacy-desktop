@@ -48,16 +48,7 @@ async function start() {
 
     autoUpdater.on('update-available', (info) => {
       console.log('Update available:', info.version)
-      dialog.showMessageBox(win, {
-        type: 'info',
-        title: 'Update Available',
-        message: `Version ${info.version} is available. Do you want to download it now?`,
-        buttons: ['Yes', 'Later']
-      }).then(result => {
-        if (result.response === 0) {
-          autoUpdater.downloadUpdate()
-        }
-      })
+      win.webContents.send('update-available', info)
     })
 
     autoUpdater.on('update-not-available', () => {
@@ -69,20 +60,11 @@ async function start() {
     })
 
     autoUpdater.on('download-progress', (progressObj) => {
-      const log_message = `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${Math.round(progressObj.percent)}% (${progressObj.transferred}/${progressObj.total})`
-      console.log(log_message)
+      win.webContents.send('update-download-progress', progressObj)
     })
 
     autoUpdater.on('update-downloaded', () => {
-      console.log('Update downloaded')
-      dialog.showMessageBox(win, {
-        type: 'info',
-        title: 'Update Ready',
-        message: 'Update downloaded, application will quit and install now.',
-        buttons: ['Restart']
-      }).then(() => {
-        setImmediate(() => autoUpdater.quitAndInstall())
-      })
+      win.webContents.send('update-downloaded')
     })
   }
 
@@ -105,6 +87,11 @@ async function start() {
     app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) })
     app.exit(0)
   })
+
+  ipcMain.on('start-update-download', () => {
+    autoUpdater.downloadUpdate()
+  })
+
 }
 
 start()

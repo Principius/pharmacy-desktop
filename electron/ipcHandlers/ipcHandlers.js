@@ -13,6 +13,9 @@ import registerSessionHandlers from './sessionHandlers.js';
 import registerDebtorsHandlers from './debtorsHandlers.js';
 import registerUserHandler from './userHandler.js';
 import registerPharmacyHandlers from './pharmacyHandler.js';
+import registerStockTransfersHandlers from './stocksTransferHandler.js';
+import registerPendingProductsHandlers from './pendingProducts.js';
+import registerCustomerSuggestionsHandlers from './customerSuggestionsHandlers.js';
 
 export default function registerIpcHandlers() {
   const sessionService = sessions(db)
@@ -27,5 +30,8 @@ export default function registerIpcHandlers() {
   registerExpensesHandlers(ipcMain, db);
   registerSessionHandlers(ipcMain, sessionService);
   registerDebtorsHandlers(ipcMain, db);
-   registerPharmacyHandlers(ipcMain); 
+  registerPharmacyHandlers(ipcMain);
+  registerStockTransfersHandlers(ipcMain);
+  registerPendingProductsHandlers(ipcMain, db);
+  registerCustomerSuggestionsHandlers(ipcMain, db);
 }

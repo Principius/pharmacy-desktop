@@ -11,5 +11,13 @@ export default async function loginUser({ email, password }) {
   const valid = bcrypt.compareSync(password, user.password)
   if (!valid) throw new Error('Incorrect password')
 
-  return { success: true, user }
+  return {
+    success: true,
+    user: {
+      ...user,
+      permissions: typeof user.permissions === 'string'
+        ? JSON.parse(user.permissions || '[]')
+        : user.permissions || []
+    }
+  }
 }

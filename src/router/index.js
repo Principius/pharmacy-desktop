@@ -22,6 +22,20 @@ import Expired from '@/Pages/Products/Expired.vue';
 import ExpiringSoon from '@/Pages/Products/ExpiringSoon.vue';
 import Pharmacy from '@/Pages/Pharmacy.vue';
 import Order from '@/Pages/Products/Order.vue';
+import SummaryDashboard from '@/Pages/SummaryDashboard.vue';
+import FinancialSummary from '@/components/FinancialSummary.vue';
+import ProductProfits from '@/Pages/ProductProfits.vue';
+import ProductSales from '@/Pages/ProductSales.vue';
+import StockTransfers from '@/Pages/StockTransfers.vue';
+import StockTransferHistory from '@/Pages/StockTransferHistory.vue';
+import PendingStockTransfers from '@/Pages/PendingStockTransfers.vue';
+import RejectedTransfers from '@/Pages/RejectedTransfers.vue';
+import Import from '@/Pages/Products/Import.vue';
+import Sheet from '@/Pages/Products/Sheet.vue';
+import ProductList from '@/Pages/ProductList.vue';
+import PharmacyOffer from '@/Pages/Mobile/Index.vue';
+import PendingProducts from '@/Pages/PendingProducts/Index.vue';
+import Suggestions from '@/Pages/CustomerSuggestions/Index.vue'
 
 async function hasPharmacyData() {
   try {
@@ -36,7 +50,7 @@ async function hasPharmacyData() {
 const routes = [
   { path: '/', name: 'Login', component: Login },
   { path: '/register', name: 'Register', component: Register },
- { path: '/dashboard', name: 'Dashboard', component: Dashboard },
+  { path: '/dashboard', name: 'Dashboard', component: Dashboard },
   { path: '/products', name: 'Products', component: Index },
   { path: '/products/create', name: 'ProductsCreate', component: Create },
   { path: '/sales', name: 'Sales', component: List },
@@ -50,11 +64,25 @@ const routes = [
   { path: '/offline', name: 'Offline', component: OfflineNotice },
   { path: '/debtors', name: 'Debtors', component: DebtorIndex },
   { path: '/users/create', name: 'UsersCreate', component: UsersCreate },
-   { path: '/permissions', name: 'Permissions', component: Permissions },
-   { path: '/expired', name: 'Expired', component: Expired },
-   { path: '/expired/soon', name: 'ExpiredSoon', component: ExpiringSoon },
-   { path: '/pharmacy', name: 'Pharmacy', component: Pharmacy },
-   { path: '/order', name: 'Order', component: Order },
+  { path: '/permissions', name: 'Permissions', component: Permissions },
+  { path: '/expired', name: 'Expired', component: Expired },
+  { path: '/expired/soon', name: 'ExpiredSoon', component: ExpiringSoon },
+  { path: '/pharmacy', name: 'Pharmacy', component: Pharmacy },
+  { path: '/orders', name: 'Order', component: Order },
+   { path: '/sheet', name: 'Sheet', component: Sheet },
+   { path: '/import', name: 'Import', component: Import },
+    { path: '/latest', name: 'ProductList', component: ProductList },
+  { path: '/transfers/rejected', name: 'RejectedTransfers', component: RejectedTransfers },
+  { path: '/transfers', name: 'StockTransfers', component: StockTransfers },
+   { path: '/transfers/pending', name: 'PendingStockTransfers', component: PendingStockTransfers },
+  { path: '/transfers/history', name: 'StockTransferHistory', component: StockTransferHistory },
+  { path: '/products/sales', name: 'ProductSales', component: ProductSales },
+  { path: '/products/profits', name: 'ProductProfits', component: ProductProfits },
+  { path: '/summaries', name: 'SummaryDashboard', component: SummaryDashboard },
+  { path: '/financials', name: 'FinancialSummary', component: FinancialSummary },
+  { path: '/mobile', name: 'PharmacyOffer', component: PharmacyOffer },
+  { path: '/pending', name: 'Pending', component: PendingProducts }, 
+ {path: '/suggestions', name: 'Suggestions', component: Suggestions}
 ];
 
 const router = createRouter({
