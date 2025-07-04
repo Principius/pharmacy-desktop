@@ -9,7 +9,7 @@
         </h2>
       </div>
 
-      <router-link to="/sales" class="px-4 py-2 text-white transition bg-gray-700 rounded hover:bg-gray-800">
+      <router-link to="/sales" v-if="can('canViewSales')" class="px-4 py-2 text-white transition bg-gray-700 rounded hover:bg-gray-800">
         View Sales
       </router-link>
     </div>
@@ -49,7 +49,7 @@
             <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">
               Selling Price
             </th>
-            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">
+            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700" v-if="can('canSeeStock')">
               Qty Left
             </th>
           </tr>
@@ -66,7 +66,7 @@
             <td class="px-4 py-3">{{ product.expire_date }}</td>
             <td class="px-4 py-3">{{ product.batch_no }}</td>
             <td class="px-4 py-3">{{ formatTZS(product.selling_price_per_unit) }}</td>
-            <td class="px-4 py-3">{{ product.quantity_remained }}</td>
+            <td class="px-4 py-3" v-if="can('canSeeStock')">{{ product.quantity_remained }}</td>
           </tr>
 
           <tr v-if="filteredProducts.length === 0">
@@ -103,6 +103,16 @@ const selected = ref([]);
 const searchTerm = ref("");
 const router = useRouter();
 
+const currentUser = ref(null);
+
+onMounted(async () => {
+  currentUser.value = await window.electronAPI.getLoggedInUser();
+  await fetchSales();
+});
+
+const can = (permission) => {
+  return currentUser.value?.permissions?.includes(permission);
+};
 // Load products
 async function loadProducts() {
   try {

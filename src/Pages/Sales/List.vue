@@ -12,7 +12,7 @@
                     class="px-4 py-2 border border-gray-300 rounded dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                     aria-label="Search sales" :disabled="isSyncing" />
 
-                <button @click="syncSales" v-if="userStore.permissions?.includes('canSyncSales')"
+                <button @click="syncSales"  v-if="can('canSyncSales')"
                     class="flex items-center gap-2 px-5 py-2 font-semibold text-white transition bg-blue-600 rounded shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     title="Sync sales to cloud" :disabled="isSyncing">
                     <span v-if="!isSyncing">Sync to Cloud</span>
@@ -72,7 +72,7 @@
                             class="px-5 py-3 font-semibold text-gray-700 border-b border-gray-300 dark:text-gray-300 dark:border-gray-700">
                             Total
                         </th>
-                        <th
+                        <th v-if="can('canViewProfit')"
                             class="px-5 py-3 font-semibold text-gray-700 border-b border-gray-300 dark:text-gray-300 dark:border-gray-700">
                             Profit
                         </th>
@@ -111,7 +111,7 @@
                         <td class="px-5 py-3 font-semibold text-green-600">
                             {{ sale.total_cost.toLocaleString() }} TZS
                         </td>
-                        <td class="px-5 py-3 font-semibold text-indigo-600">
+                        <td class="px-5 py-3 font-semibold text-indigo-600" v-if="can('canViewProfit')">
                             {{ sale.profit?.toLocaleString() }} TZS
                         </td>
                         <td class="px-5 py-3">
@@ -130,13 +130,13 @@
                         </td>
 
                         <td class="px-5 py-3 space-x-3">
-                            <button @click="goToEdit(sale)" v-if="userStore.permissions?.includes('canEditSales')"
+                            <button @click="goToEdit(sale)" v-if="can('canEditSales')"
                                 class="font-semibold text-blue-600 transition hover:text-blue-800 dark:hover:text-blue-400 focus:outline-none focus:underline"
                                 aria-label="Edit sale">
                                 Edit
                             </button>
                             <button @click="deleteSale(sale.id)"
-                                v-if="userStore.permissions?.includes('canDeleteSales')"
+                               v-if="can('canDeleteSales')"
                                 class="font-semibold text-red-600 transition hover:text-red-800 dark:hover:text-red-400 focus:outline-none focus:underline"
                                 aria-label="Delete sale">
                                 Delete
@@ -178,9 +178,6 @@ import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import Back from "@/components/Back.vue";
 import dayjs, { formatToNairobi } from "@/utils/dayjs";
-import { useUserStore } from "@/stores/user";
-
-const userStore = useUserStore();
 
 const sales = ref([]);
 const searchTerm = ref("");
@@ -191,6 +188,18 @@ const startDate = ref("");
 const endDate = ref("");
 
 const selectedSeller = ref("");
+
+const currentUser = ref(null);
+
+onMounted(async () => {
+  currentUser.value = await window.electronAPI.getLoggedInUser();
+  await fetchSales();
+});
+
+const can = (permission) => {
+  return currentUser.value?.permissions?.includes(permission);
+};
+
 
 async function confirmInternetAction(callback) {
     const { isConfirmed } = await Swal.fire({

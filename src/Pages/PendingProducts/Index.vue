@@ -11,10 +11,38 @@
             + Add New Pending Product
         </button>
 
-        <button @click="syncToCloud" :disabled="isSyncing"
+        <button @click="syncToCloud" :disabled="isSyncing" v-if="can('canSyncPendingProducts')"
             class="mb-6 ml-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50">
             {{ isSyncing ? "Syncing..." : "Sync Pending Products to Cloud" }}
         </button>
+
+        <div class="mb-4">
+            <label for="syncFilter" class="mr-2 font-semibold">Filter:</label>
+            <select v-model="syncFilter" id="syncFilter"
+                class="px-3 py-1 border rounded dark:bg-gray-800 dark:border-gray-600">
+                <option value="all">All</option>
+                <option value="synced">Synced</option>
+                <option value="unsynced">Unsynced</option>
+            </select>
+        </div>
+
+        <div class="flex items-end space-x-4 mb-4">
+            <div>
+                <label class="block text-sm font-semibold mb-1">Start Date</label>
+                <input v-model="dateRange.start" type="date"
+                    class="px-3 py-2 border rounded dark:bg-gray-800 dark:border-gray-600" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold mb-1">End Date</label>
+                <input v-model="dateRange.end" type="date"
+                    class="px-3 py-2 border rounded dark:bg-gray-800 dark:border-gray-600" />
+            </div>
+
+            <button @click="clearDateFilter" class="px-3 py-2 bg-gray-300 text-black rounded hover:bg-gray-400">
+                Clear
+            </button>
+        </div>
 
         <!-- Product Table -->
         <table class="w-full text-left border-collapse border border-gray-300 dark:border-gray-700">
@@ -35,11 +63,12 @@
                     <th class="border px-4 py-2">Notify Before (Days)</th>
                     <!-- <th class="border px-4 py-2">Status</th> -->
                     <th class="border px-4 py-2">Synced</th>
+                    <th class="border px-4 py-2">Synced At</th>
                     <th class="border px-4 py-2">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="product in pendingProducts" :key="product.id" :class="[
+                <tr v-for="product in filteredProducts" :key="product.id" :class="[
                     'border hover:bg-gray-50 dark:hover:bg-gray-700',
                     duplicateIds.includes(product.id) ? 'bg-red-100 dark:bg-red-900' : ''
                 ]">
@@ -68,14 +97,17 @@
                             {{ product.is_synced ? "✔" : "✘" }}
                         </span>
                     </td>
+                    <td class="px-4 py-2">
+                        {{ product.updated_at ? new Date(product.updated_at).toLocaleString() : "-" }}
+                    </td>
                     <td class="px-4 py-2 space-x-2">
                         <button @click="openEditModal(product)" class="text-blue-600 hover:underline">Edit</button>
                         <button @click="deletePendingProduct(product.id)"
                             class="text-red-600 hover:underline">Delete</button>
                     </td>
                 </tr>
-                <tr v-if="pendingProducts.length === 0">
-                    <td colspan="16" class="text-center py-6 text-gray-500 dark:text-gray-400 italic">
+                <tr v-if="filteredProducts.length === 0">
+                    <td colspan="17" class="text-center py-6 text-gray-500 dark:text-gray-400 italic">
                         No pending products found.
                     </td>
                 </tr>
@@ -149,7 +181,7 @@
                 </div>
 
                 <div>
-                    <label class="block mb-1 font-semibold">Quantity Remained</label>
+                    <label class="block mb-1 font-semibold">Quantity</label>
                     <input v-model.number.lazy="form.quantity_remained" type="number" min="0" required
                         class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
                 </div>
@@ -210,16 +242,63 @@ const existingProducts = ref([]);
 const productDialog = ref(null);
 const isEditing = ref(false);
 
+const dateRange = ref({
+    start: '',
+    end: ''
+});
+
 // Pagination
 const currentPage = ref(1);
 const perPage = 25;
 
+const syncFilter = ref('all')
+
+const filteredProducts = computed(() => {
+    let products = pendingProducts.value;
+
+    if (syncFilter.value === 'synced') {
+        products = products.filter(p => p.is_synced);
+    } else if (syncFilter.value === 'unsynced') {
+        products = products.filter(p => !p.is_synced);
+    }
+
+    if (dateRange.value.start && dateRange.value.end) {
+        const start = new Date(dateRange.value.start);
+        const end = new Date(dateRange.value.end);
+        end.setDate(end.getDate() + 1); // include full end day
+
+        products = products.filter(p => {
+            const updatedAt = new Date(p.updated_at);
+            return updatedAt >= start && updatedAt < end;
+        });
+    }
+
+    return products;
+});
+
+function clearDateFilter() {
+    dateRange.value.start = '';
+    dateRange.value.end = '';
+}
+
+
+const currentUser = ref(null);
+
+onMounted(async () => {
+    currentUser.value = await window.electronAPI.getLoggedInUser();
+    await fetchSales();
+});
+
+const can = (permission) => {
+    return currentUser.value?.permissions?.includes(permission);
+};
+
 const paginatedProducts = computed(() => {
     const start = (currentPage.value - 1) * perPage;
-    return pendingProducts.value.slice(start, start + perPage);
+    return filteredProducts.value.slice(start, start + perPage);
 });
 const totalPages = computed(() =>
-    Math.ceil(pendingProducts.value.length / perPage)
+    Math.ceil(filteredProducts.value.length / perPage)
 );
 function nextPage() {
     if (currentPage.value < totalPages.value) currentPage.value++;

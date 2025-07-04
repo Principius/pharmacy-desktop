@@ -228,20 +228,20 @@ function markEdited(product) {
 }
 
 function isValidProduct(p) {
-  return (
-    p.name &&
-    p.brand &&
-    p.category &&
-    p.form &&
-    p.batch_no &&
-    p.buying_price != null &&
-    p.buying_price_per_unit != null &&
-    p.selling_price_per_unit != null &&
-    p.supplier_name &&
-    p.received_date &&
-    p.quantity_remained != null &&
-    p.minimum_stock != null
-  );
+    return (
+        p.name &&
+        p.brand &&
+        p.category &&
+        p.form &&
+        p.batch_no &&
+        p.buying_price != null &&
+        p.buying_price_per_unit != null &&
+        p.selling_price_per_unit != null &&
+        p.supplier_name &&
+        p.received_date &&
+        p.quantity_remained != null &&
+        p.minimum_stock != null
+    );
 }
 
 // Save a single product
@@ -267,26 +267,43 @@ async function saveSingleProduct(product) {
 
 // Save all filtered products
 async function saveAllProducts() {
+    let loader;
     try {
+        loader = Swal.fire({
+            title: "Saving...",
+            text: "Please wait while we save your product changes.",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
         for (const product of filteredProducts.value) {
             const cleanPayload = JSON.parse(JSON.stringify(product));
             const result = await window.electronAPI.changeProduct(cleanPayload);
+
             if (!result.success) {
+                Swal.close();
                 await Swal.fire("Error", `Failed to save product ${product.name || product.id}`, "error");
                 return;
             }
+
             const idx = originalProducts.value.findIndex((p) => p.id === product.id);
             if (idx !== -1) {
                 originalProducts.value[idx] = deepCopy(product);
             }
             editedProductIds.value.delete(product.id);
         }
+
+        Swal.close();
         await Swal.fire("Success", "All products saved successfully.", "success");
     } catch (error) {
         console.error(error);
+        Swal.close();
         await Swal.fire("Error", "Error saving all products.", "error");
     }
 }
+
 
 // Delete product from list
 async function deleteProduct(productId) {
@@ -370,5 +387,4 @@ async function syncToCloud() {
     }
 
 }
-
 </script>

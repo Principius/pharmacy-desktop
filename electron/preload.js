@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("login-user", credentials),
   getLoggedInUser: () => ipcRenderer.invoke("get-logged-in-user"),
   invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args),
+  logoutUser: () => ipcRenderer.invoke('logout-user'),
 
   createProduct: async (productData) =>
     ipcRenderer.invoke("create-product", productData),

@@ -12,7 +12,7 @@
                     <tr>
                         <th class="px-4 py-3 border dark:border-gray-700">Name</th>
                         <th class="px-4 py-3 border dark:border-gray-700"
-                            v-if="userStore.permissions?.includes('canAccessReports')">
+                            v-if="can('canAccessReports')">
                             Email
                         </th>
                         <th class="px-4 py-3 border dark:border-gray-700">Permissions</th>
@@ -29,7 +29,7 @@
                             {{ user.name }}
                         </td>
                         <td class="px-4 py-3 text-gray-600 dark:text-gray-300"
-                            v-if="userStore.permissions?.includes('canAccessReports')">
+                            v-if="can('canAccessReports')">
                             {{ user.email }}
                         </td>
 
@@ -57,19 +57,50 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import Back from '@/components/Back.vue'
-import { useUserStore } from '@/stores/user'
 
-const userStore = useUserStore()
-const users = computed(() => userStore.users) // ✅ reactive list from store
+const users = ref([])
+
+const currentUser = ref(null)
+
+onMounted(async () => {
+  try {
+    const fetched = await window.electronAPI.getUsers()
+    const parsed = fetched.map(u => ({
+      ...u,
+      permissions: typeof u.permissions === 'string'
+        ? JSON.parse(u.permissions || '[]')
+        : (u.permissions || []),
+    }))
+    users.value = parsed
+
+    // ✅ Get current user from backend session
+    currentUser.value = await window.electronAPI.getLoggedInUser()
+
+  } catch (error) {
+    console.error('Failed to fetch data:', error)
+    Swal.fire('Error', 'Failed to load users.', 'error')
+  }
+})
+
+const can = (permission) => {
+  return currentUser.value?.permissions?.includes(permission)
+}
 
 const availablePermissions = [
   'canManageUsers',
   'canEditSales',
+  'canViewSales',
+  'canViewProfit',
+  'canEditProducts',
+  'canMakeSales',
+  'canViewProfitLoss',
   'canDeleteSales',
   'canAddExpenses',
+  'canSeeStock',
+  'canSyncPendingProducts',
   'canEditDiscount',
   'canChangePermissions',
   'canSyncProducts',
@@ -99,7 +130,8 @@ const formatLabel = (perm) => {
 const savePermissions = async (user) => {
   try {
     const updatedUser = await window.electronAPI.updateUserPermissions(user.id, [...user.permissions])
-    userStore.updateUserInList(updatedUser) // ✅ update in Pinia store
+    const index = users.value.findIndex(u => u.id === updatedUser.id)
+    if (index !== -1) users.value[index] = updatedUser
 
     Swal.fire('Saved!', `Permissions for ${user.name} updated.`, 'success')
   } catch (error) {
@@ -117,7 +149,7 @@ onMounted(async () => {
         ? JSON.parse(u.permissions || '[]')
         : (u.permissions || []),
     }))
-    userStore.setUsers(parsed) // ✅ set into Pinia
+    users.value = parsed
   } catch (error) {
     console.error('Failed to fetch users:', error)
     Swal.fire('Error', 'Failed to load users.', 'error')

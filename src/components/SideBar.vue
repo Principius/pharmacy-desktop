@@ -90,8 +90,8 @@
             <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
                 <ul class="space-y-2 font-medium">
                     <li>
-                        <a href="#"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <Link @click="$router.push('/dashboard')"
+                            class="cursor-pointer flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                             <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                                 viewBox="0 0 24 24">
@@ -99,7 +99,7 @@
                                     d="M5 3a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5Zm14 18a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h4ZM5 11a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H5Zm14 2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h4Z" />
                             </svg>
                             <span class="ms-3">Dashboard</span>
-                        </a>
+                        </Link>
                     </li>
                     <li>
                         <Link @click="$router.push('/sales/select')"
@@ -274,7 +274,7 @@
                         </Link>
                     </li>
 
-                    <li>
+                    <li v-if="user.role?.toLowerCase() === 'admin'">
                         <Link @click="$router.push('/permissions')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
@@ -289,6 +289,7 @@
                         <span class="flex-1 ms-3 whitespace-nowrap">Permissions</span>
                         </Link>
                     </li>
+
                     <li>
                         <Link @click="$router.push('/summaries')"
                             class="flex items-center p-2 text-gray-900 rounded-lg cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
@@ -330,9 +331,9 @@
                         </Link>
                     </li>
                     <li>
-                        <button as="button" @click="$router.push('/')"
+                        <button @click="handleLogout"
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                            <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
+                            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                                 viewBox="0 0 24 24">
                                 <path
@@ -350,7 +351,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import axios from "axios";
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 const pharmacyName = ref("Pharmacy");
 
@@ -402,6 +404,17 @@ onMounted(async () => {
         }
     }
 });
+
+async function handleLogout() {
+    try {
+        await window.electronAPI.logoutUser(); // IPC call
+        localStorage.removeItem("user");       // Clear frontend session
+        user.value = null;                     // Optional: clear reactive user
+        router.push({ name: "Login" });        // Redirect to login
+    } catch (error) {
+        console.error("Logout failed:", error);
+    }
+}
 </script>
 
 <style scoped>

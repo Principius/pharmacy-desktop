@@ -21,7 +21,7 @@
                 </div>
                 <!-- Dashboard Stats -->
                 <div class="grid gap-6 mb-10 md:grid-cols-2 lg:grid-cols-3 animate-fade-in">
-                    <div @click="$router.push('/sales')" class="cursor-pointer">
+                    <div @click="$router.push('/sales')" class="cursor-pointer" v-if="can('canViewSales')">
                         <DashboardCard title="Today's Sales" icon="fas fa-chart-line" bg="from-green-400 to-green-600"
                             :lines="[
                                 'Total Sales: ' + dailySales,
@@ -29,7 +29,7 @@
                             ]" />
                     </div>
 
-                    <div @click="$router.push('/sales')" class="cursor-pointer">
+                    <div @click="$router.push('/sales')" class="cursor-pointer" v-if="can('canViewSales')">
                         <DashboardCard title="Overall Sales" icon="fas fa-chart-bar" bg="from-blue-400 to-blue-600"
                             :lines="[
                                 'Total Sales: ' + totalSales,
@@ -104,6 +104,18 @@ const expiredProducts = ref(0);
 const lowStockDrugs = ref(0);
 const totalProducts = ref(0);
 
+const graphStats = ref([]);
+const currentYear = new Date().getFullYear();
+const appName = "Automate-XT";
+
+// Shared user ref
+const user = ref({ name: "", email: "", role: "", permissions: [] });
+const currentUser = user; // Alias for permission-based logic
+
+const can = (permission) => {
+    return currentUser.value?.permissions?.includes(permission);
+};
+
 const formatTZS = (value) => {
     return new Intl.NumberFormat("en-TZ", {
         style: "currency",
@@ -111,8 +123,6 @@ const formatTZS = (value) => {
         minimumFractionDigits: 2,
     }).format(value);
 };
-
-const user = ref({ name: "", email: "", role: "" });
 
 onMounted(async () => {
     const stored = localStorage.getItem("user");
@@ -134,28 +144,15 @@ onMounted(async () => {
     totalSales.value = stats.totalSales;
     totalRevenue.value = stats.totalRevenue;
 
-    const productStats = await window.electronAPI.invoke(
-        "products:get-dashboard-stats"
-    );
-
+    const productStats = await window.electronAPI.invoke("products:get-dashboard-stats");
     availableProducts.value = productStats.availableProducts;
     expiredProducts.value = productStats.expiredProducts;
     lowStockDrugs.value = productStats.lowStockDrugs;
     totalProducts.value = productStats.totalProducts;
     expiringSoonProducts.value = productStats.expiringSoonProducts;
+
+    const data = await window.electronAPI.getGraphSalesStats();
+    graphStats.value = data;
 });
-
-const graphStats = ref([]);
-
-onMounted(async () => {
-    try {
-        const data = await window.electronAPI.getGraphSalesStats();
-        graphStats.value = data;
-    } catch (error) {
-        console.error("Error fetching dashboard graph stats:", error);
-    }
-});
-
-const currentYear = new Date().getFullYear();
-const appName = "Automate-XT";
 </script>
+

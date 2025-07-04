@@ -65,13 +65,12 @@ async function handleLogin() {
       password: password.value,
     })
 
-    const user = response.user?.user || response.user
-
-    if (response.success && user) {
-      localStorage.setItem('user', JSON.stringify(user))
+    if (response.success && response.user) {
+      // Store locally if needed
+      localStorage.setItem('user', JSON.stringify(response.user))
 
       await Swal.fire({
-        title: `Welcome, ${user.name || user.email}!`,
+        title: `Welcome, ${response.user.name || response.user.email}!`,
         icon: 'success',
         confirmButtonText: 'Continue',
       })
@@ -85,3 +84,4 @@ async function handleLogin() {
   }
 }
 </script>
+
