@@ -11,6 +11,7 @@
             <!-- Product Table -->
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200">
+
                     <thead class="bg-gray-200 dark:bg-gray-700">
                         <tr>
                             <th class="px-4 py-2">Product Name (Brand)</th>
@@ -19,6 +20,7 @@
                             <th class="px-4 py-2">Price per Unit (TZS)</th>
                             <th class="px-4 py-2">Discount</th>
                             <th class="px-4 py-2">Total</th>
+                            <th class="px-4 py-2">Action</th> <!-- New column -->
                         </tr>
                     </thead>
                     <tbody>
@@ -44,28 +46,36 @@
                                 <input type="number" step="0.01" v-model.number="product.discount_applied"
                                     class="w-24 px-2 py-1 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600"
                                     :disabled="!canEditDiscount"
-                                    :class="{ 'bg-gray-200 dark:bg-gray-800 text-gray-500 cursor-not-allowed': !canEditPrice }" />
+                                    :class="{ 'bg-gray-200 dark:bg-gray-800 text-gray-500 cursor-not-allowed': !canEditDiscount }" />
                             </td>
                             <td class="px-4 py-2 font-semibold text-green-600 dark:text-green-400">
                                 {{ ((product.quantity_sold || 0) * (product.price_per_unit || 0) -
                                     (product.discount_applied || 0)).toLocaleString() }} TZS
                             </td>
+                            <td class="px-4 py-2">
+                                <button @click.prevent="removeProduct(index)"
+                                    class="px-3 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700">
+                                    Remove
+                                </button>
+                            </td>
                         </tr>
                     </tbody>
+
                     <tfoot>
                         <tr class="font-bold text-purple-700 bg-gray-100 dark:bg-gray-800 dark:text-purple-400">
                             <td colspan="5" class="px-4 py-3 text-right">Grand Total:</td>
                             <td class="px-4 py-3">
                                 {{ grandTotal.toLocaleString() }} TZS
                             </td>
+                            <td></td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
 
             <!-- Submit Button -->
-            <button type="submit"
-                class="w-full px-4 py-3 font-semibold text-white transition-all bg-purple-600 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-400 dark:focus:ring-purple-700">
+            <button type="submit" :disabled="selectedProducts.length === 0"
+                class="w-full px-4 py-3 font-semibold text-white transition-all bg-purple-600 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-400 dark:focus:ring-purple-700 disabled:opacity-50 disabled:cursor-not-allowed">
                 Submit Sale
             </button>
         </form>
@@ -154,37 +164,61 @@
             </div>
         </div>
     </dialog>
-
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import Back from '@/components/Back.vue'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
-const router = useRouter()
-
-import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
 
 const selectedProducts = ref([])
 const receiptDialog = ref(null)
 const isPrinting = ref(false)
 const pharmacyInfo = ref(null)
+const currentUser = ref(null)
 
 const resetForm = () => {
     selectedProducts.value = []
 }
 
+// Load saved selected products from localStorage
+const updateSelectedProducts = () => {
+    const saved = localStorage.getItem("selectedProducts")
+    if (saved) {
+        selectedProducts.value = JSON.parse(saved).map(p => ({
+            ...p,
+            quantity_sold: p.quantity_sold || 1,
+            price_per_unit: p.price_per_unit || p.selling_price_per_unit || 0,
+            discount_applied: p.discount_applied || 0,
+        }))
+    }
+}
+
+onMounted(async () => {
+    const savedUser = localStorage.getItem('user')
+    if (savedUser) currentUser.value = JSON.parse(savedUser)
+
+    updateSelectedProducts()
+    pharmacyInfo.value = await window.electronAPI.pharmacyGetInfo()
+})
+
+// Persist edits (qty, price, discount) back to localStorage
+watch(selectedProducts, (newVal) => {
+    localStorage.setItem("selectedProducts", JSON.stringify(newVal))
+}, { deep: true })
+
 const canEditPrice = computed(() =>
-    userStore.permissions?.includes('canEditPrice')
-);
+    currentUser.value?.permissions?.includes('canEditPrice')
+)
 
 const canEditDiscount = computed(() =>
-    userStore.permissions?.includes('canEditDiscount')
-);
+    currentUser.value?.permissions?.includes('canEditDiscount')
+)
 
 const grandTotal = computed(() =>
     selectedProducts.value.reduce((sum, product) => {
@@ -193,16 +227,10 @@ const grandTotal = computed(() =>
     }, 0)
 )
 
-onMounted(async () => {
-    selectedProducts.value = JSON.parse(route.query.selected || '[]').map(product => ({
-        ...product,
-        quantity_sold: 1,
-        price_per_unit: product.selling_price_per_unit || 0,
-        discount_applied: 0,
-    }))
-
-    pharmacyInfo.value = await window.electronAPI.pharmacyGetInfo()
-})
+const removeProduct = (index) => {
+    selectedProducts.value.splice(index, 1)
+    localStorage.setItem("selectedProducts", JSON.stringify(selectedProducts.value))
+}
 
 const submitSales = async () => {
     const result = await Swal.fire({
@@ -225,12 +253,11 @@ const submitSales = async () => {
                 total_cost: total_cost > 0 ? total_cost : 0,
                 price_before_discount: p.quantity_sold * (p.selling_price_per_unit_before_discount || p.price_per_unit),
                 expected_selling_price: p.selling_price_per_unit || p.price_per_unit,
-                seller_id: userStore.user?.id || null, // ✅ Add seller
+                seller_id: userStore.user?.id || null,
             }
         })
 
         const res = await window.electronAPI.createSale(plainProducts)
-
         if (res.success) {
             Swal.fire('Success', 'Sale completed!', 'success')
             resetForm()

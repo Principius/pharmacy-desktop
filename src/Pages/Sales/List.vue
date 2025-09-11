@@ -12,7 +12,7 @@
                     class="px-4 py-2 border border-gray-300 rounded dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100"
                     aria-label="Search sales" :disabled="isSyncing" />
 
-                <button @click="syncSales"  v-if="can('canSyncSales')"
+                <button @click="syncSales" v-if="can('canSyncSales')"
                     class="flex items-center gap-2 px-5 py-2 font-semibold text-white transition bg-blue-600 rounded shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     title="Sync sales to cloud" :disabled="isSyncing">
                     <span v-if="!isSyncing">Sync to Cloud</span>
@@ -70,6 +70,14 @@
                         </th>
                         <th
                             class="px-5 py-3 font-semibold text-gray-700 border-b border-gray-300 dark:text-gray-300 dark:border-gray-700">
+                            Unit Price
+                        </th>
+                        <th
+                            class="px-5 py-3 font-semibold text-gray-700 border-b border-gray-300 dark:text-gray-300 dark:border-gray-700">
+                            Discount
+                        </th>
+                        <th
+                            class="px-5 py-3 font-semibold text-gray-700 border-b border-gray-300 dark:text-gray-300 dark:border-gray-700">
                             Total
                         </th>
                         <th v-if="can('canViewProfit')"
@@ -108,6 +116,12 @@
                         <td class="px-5 py-3 text-gray-900 dark:text-gray-100">
                             {{ sale.quantity_sold }}
                         </td>
+                        <td class="px-5 py-3 text-gray-900 dark:text-gray-100">
+                            {{ sale.price_per_unit.toLocaleString() }} TZS
+                        </td>
+                        <td class="px-5 py-3 text-gray-900 dark:text-gray-100">
+                            {{ sale.discount_applied.toLocaleString() }} TZS
+                        </td>
                         <td class="px-5 py-3 font-semibold text-green-600">
                             {{ sale.total_cost.toLocaleString() }} TZS
                         </td>
@@ -123,7 +137,13 @@
                             </span>
                         </td>
                         <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
-                            {{ formatToNairobi(sale.created_at) }}
+                            {{ sale.updated_at
+                                ? new Date(sale.updated_at + "Z").toLocaleString("en-GB", {
+                                    timeZone: "Africa/Dar_es_Salaam",
+                            dateStyle: "short",
+                            timeStyle: "medium"
+                            })
+                            : "-" }}
                         </td>
                         <td class="px-5 py-3 text-gray-900 dark:text-gray-100">
                             {{ sale.seller_name || "N/A" }}
@@ -135,8 +155,7 @@
                                 aria-label="Edit sale">
                                 Edit
                             </button>
-                            <button @click="deleteSale(sale.id)"
-                               v-if="can('canDeleteSales')"
+                            <button @click="deleteSale(sale.id)" v-if="can('canDeleteSales')"
                                 class="font-semibold text-red-600 transition hover:text-red-800 dark:hover:text-red-400 focus:outline-none focus:underline"
                                 aria-label="Delete sale">
                                 Delete
@@ -192,12 +211,12 @@ const selectedSeller = ref("");
 const currentUser = ref(null);
 
 onMounted(async () => {
-  currentUser.value = await window.electronAPI.getLoggedInUser();
-  await fetchSales();
+    currentUser.value = await window.electronAPI.getLoggedInUser();
+    await fetchSales();
 });
 
 const can = (permission) => {
-  return currentUser.value?.permissions?.includes(permission);
+    return currentUser.value?.permissions?.includes(permission);
 };
 
 

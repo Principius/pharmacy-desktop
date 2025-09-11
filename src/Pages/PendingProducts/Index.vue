@@ -45,92 +45,124 @@
         </div>
 
         <!-- Product Table -->
-        <table class="w-full text-left border-collapse border border-gray-300 dark:border-gray-700">
-            <thead class="bg-gray-100 dark:bg-gray-800">
-                <tr>
-                    <th class="border px-4 py-2">Name</th>
-                    <th class="border px-4 py-2">Brand</th>
-                    <th class="border px-4 py-2">Category</th>
-                    <th class="border px-4 py-2">Form</th>
-                    <th class="border px-4 py-2">Expire Date</th>
-                    <th class="border px-4 py-2">Batch No</th>
-                    <th class="border px-4 py-2">Buying Price</th>
-                    <th class="border px-4 py-2">Selling Price</th>
-                    <th class="border px-4 py-2">Supplier</th>
-                    <th class="border px-4 py-2">Quantity</th>
-                    <th class="border px-4 py-2">Min Stock</th>
-                    <th class="border px-4 py-2">Price/Unit</th>
-                    <th class="border px-4 py-2">Notify Before (Days)</th>
-                    <!-- <th class="border px-4 py-2">Status</th> -->
-                    <th class="border px-4 py-2">Synced</th>
-                    <th class="border px-4 py-2">Synced At</th>
-                    <th class="border px-4 py-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="product in filteredProducts" :key="product.id" :class="[
-                    'border hover:bg-gray-50 dark:hover:bg-gray-700',
-                    duplicateIds.includes(product.id) ? 'bg-red-100 dark:bg-red-900' : ''
-                ]">
-                    <td class="px-4 py-2">
-                        {{ product.name }}
-                        <span v-if="duplicateIds.includes(product.id)"
-                            class="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded">
-                            Duplicate
-                        </span>
-                    </td>
-                    <td class="px-4 py-2">{{ product.brand || "-" }}</td>
-                    <td class="px-4 py-2">{{ product.category || "-" }}</td>
-                    <td class="px-4 py-2">{{ product.form || "-" }}</td>
-                    <td class="px-4 py-2">{{ product.expire_date?.split("T")[0] || "-" }}</td>
-                    <td class="px-4 py-2">{{ product.batch_no || "-" }}</td>
-                    <td class="px-4 py-2">{{ product.buying_price ?? "-" }}</td>
-                    <td class="px-4 py-2">{{ product.selling_price_per_unit ?? "-" }}</td>
-                    <td class="px-4 py-2">{{ product.supplier_name || "-" }}</td>
-                    <td class="px-4 py-2">{{ product.quantity_remained ?? "-" }}</td>
-                    <td class="px-4 py-2">{{ product.minimum_stock ?? "-" }}</td>
-                    <td class="px-4 py-2">{{ product.buying_price_per_unit ?? "-" }}</td>
-                    <td class="px-4 py-2">{{ product.min_days_to_notify_expiring ?? "-" }}</td>
-                    <!-- <td class="px-4 py-2 capitalize">{{ product.status }}</td> -->
-                    <td class="px-4 py-2 text-center">
-                        <span :class="product.is_synced ? 'text-green-600' : 'text-yellow-600'">
-                            {{ product.is_synced ? "✔" : "✘" }}
-                        </span>
-                    </td>
-                    <td class="px-4 py-2">
-                        {{ product.updated_at ? new Date(product.updated_at).toLocaleString() : "-" }}
-                    </td>
-                    <td class="px-4 py-2 space-x-2">
-                        <button @click="openEditModal(product)" class="text-blue-600 hover:underline">Edit</button>
-                        <button @click="deletePendingProduct(product.id)"
-                            class="text-red-600 hover:underline">Delete</button>
-                    </td>
-                </tr>
-                <tr v-if="filteredProducts.length === 0">
-                    <td colspan="17" class="text-center py-6 text-gray-500 dark:text-gray-400 italic">
-                        No pending products found.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="overflow-x-auto">
+            <table class="min-w-[1200px] w-full text-left border-collapse border border-gray-300 dark:border-gray-700">
+                <thead class="bg-gray-100 dark:bg-gray-800">
+                    <tr>
+                        <th class="border px-4 py-2">Name</th>
+                        <th class="border px-4 py-2">Brand</th>
+                        <th class="border px-4 py-2">Category</th>
+                        <th class="border px-4 py-2">Form</th>
+                        <th class="border px-4 py-2">Expire Date</th>
+                        <th class="border px-4 py-2">Price/Unit</th>
+                        <th class="border px-4 py-2">Total Buying Price</th>
+                        <th class="border px-4 py-2">Selling Price</th>
+                        <th class="border px-4 py-2">Markup %</th>
+                        <th class="border px-4 py-2">Supplier</th>
+                        <th class="border px-4 py-2">Quantity</th>
+                        <th class="border px-4 py-2">Min Stock</th>
+                        <th class="border px-4 py-2">Notify Before (Days)</th>
+                        <!-- <th class="border px-4 py-2">Status</th> -->
+                        <th class="border px-4 py-2">Synced</th>
+                        <th class="border px-4 py-2">Synced At</th>
+                        <th class="border px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="product in filteredProducts" :key="product.id" :class="[
+                        'border hover:bg-gray-50 dark:hover:bg-gray-700',
+                        duplicateIds.includes(product.id)
+                            ? 'bg-red-100 dark:bg-red-900'
+                            : '',
+                    ]">
+                        <td class="px-4 py-2">
+                            {{ product.name }}
+                            <span v-if="duplicateIds.includes(product.id)"
+                                class="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded">
+                                Duplicate
+                            </span>
+                        </td>
+                        <td class="px-4 py-2">{{ product.brand || "-" }}</td>
+                        <td class="px-4 py-2">{{ product.category || "-" }}</td>
+                        <td class="px-4 py-2">{{ product.form || "-" }}</td>
+                        <td class="px-4 py-2">
+                            {{ product.expire_date?.split("T")[0] || "-" }}
+                        </td>
+                        <td class="px-4 py-2">{{ product.buying_price_per_unit ?? "-" }}</td>
+                        <td class="px-4 py-2">{{ product.buying_price ?? "-" }}</td>
+                        <td class="px-4 py-2">{{ product.selling_price_per_unit ?? "-" }}</td>
+                        <td class="px-4 py-2">
+                            {{ product.percentage_markup ? product.percentage_markup.toFixed(2) + '%' : '-' }}
+                        </td>
+                        <td class="px-4 py-2">{{ product.supplier_name || "-" }}</td>
+                        <td class="px-4 py-2">{{ product.quantity_remained ?? "-" }}</td>
+                        <td class="px-4 py-2">{{ product.minimum_stock ?? "-" }}</td>
+                        <td class="px-4 py-2">
+                            {{ product.min_days_to_notify_expiring ?? "-" }}
+                        </td>
+                        <!-- <td class="px-4 py-2 capitalize">{{ product.status }}</td> -->
+                        <td class="px-4 py-2 text-center">
+                            <span :class="product.is_synced ? 'text-green-600' : 'text-yellow-600'">
+                                {{ product.is_synced ? "✔" : "✘" }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2">
+                            {{ product.updated_at
+                                ? new Date(product.updated_at + "Z").toLocaleString("en-GB", {
+                                    timeZone: "Africa/Dar_es_Salaam",
+                                    dateStyle: "short",
+                                    timeStyle: "medium"
+                                })
+                                : "-" }}
+
+                        </td>
+                        <td class="px-4 py-2 space-x-2">
+                            <button @click="openEditModal(product)" class="text-blue-600 hover:underline">
+                                Edit
+                            </button>
+                            <button @click="deletePendingProduct(product.id)" class="text-red-600 hover:underline">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    <tr v-if="filteredProducts.length === 0">
+                        <td colspan="17" class="text-center py-6 text-gray-500 dark:text-gray-400 italic">
+                            No pending products found.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Add/Edit Modal -->
         <dialog ref="productDialog"
             class="w-full max-w-lg p-6 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-            <h2 class="text-xl font-bold mb-4">{{ isEditing ? "Edit" : "Add" }} Pending Product</h2>
+            <h2 class="text-xl font-bold mb-4">
+                {{ isEditing ? "Edit" : "Add" }} Pending Product
+            </h2>
             <form @submit.prevent="saveProduct" class="space-y-4">
-
                 <div v-if="isEditing">
                     <label class="block mb-1 font-semibold">Product UUID</label>
                     <input v-model="form.product_uuid" type="text" disabled
                         class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700 cursor-not-allowed opacity-70" />
                 </div>
 
-                <input v-model.lazy="form.name" list="nameSuggestions" required type="text"
-                    class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
-                <datalist id="nameSuggestions">
-                    <option v-for="p in existingProducts" :key="p.id" :value="p.name" />
-                </datalist>
+                <div class="relative">
+                    <!-- Search input -->
+                    <input v-model="searchQuery" @input="onSearch" type="text"
+                        placeholder="Search product by name or brand..."
+                        class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
+
+                    <!-- Suggestions dropdown -->
+                    <ul v-if="suggestions.length && showSuggestions"
+                        class="absolute z-50 w-full bg-white dark:bg-gray-800 border rounded shadow max-h-60 overflow-y-auto">
+                        <li v-for="p in suggestions" :key="p.id" @click="selectProduct(p)"
+                            class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                            {{ p.name }}
+                            <span v-if="p.brand" class="text-gray-500">({{ p.brand }})</span>
+                        </li>
+                    </ul>
+                </div>
 
                 <input v-model.lazy="form.brand" list="brandSuggestions" type="text"
                     class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
@@ -157,8 +189,14 @@
                 </div>
 
                 <div>
-                    <label class="block mb-1 font-semibold">Batch No</label>
-                    <input v-model.lazy="form.batch_no" type="text"
+                    <label class="block mb-1 font-semibold">Quantity</label>
+                    <input v-model.number.lazy="form.quantity_remained" type="number" min="0" required
+                        class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
+                </div>
+
+                <div>
+                    <label class="block mb-1 font-semibold">Buying Price Per Unit</label>
+                    <input v-model.number.lazy="form.buying_price_per_unit" type="number" step="0.01" min="0"
                         class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
                 </div>
 
@@ -175,26 +213,20 @@
                 </div>
 
                 <div>
+                    <label class="block mb-1 font-semibold">Markup (%)</label>
+                    <input v-model="form.percentage_markup" type="number" disabled
+                        class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700 bg-gray-100 cursor-not-allowed" />
+                </div>
+
+                <div>
                     <label class="block mb-1 font-semibold">Supplier Name</label>
                     <input v-model.lazy="form.supplier_name" type="text"
                         class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
                 </div>
 
                 <div>
-                    <label class="block mb-1 font-semibold">Quantity</label>
-                    <input v-model.number.lazy="form.quantity_remained" type="number" min="0" required
-                        class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
-                </div>
-
-                <div>
                     <label class="block mb-1 font-semibold">Minimum Stock</label>
                     <input v-model.number.lazy="form.minimum_stock" type="number" min="0"
-                        class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
-                </div>
-
-                <div>
-                    <label class="block mb-1 font-semibold">Buying Price Per Unit</label>
-                    <input v-model.number.lazy="form.buying_price_per_unit" type="number" step="0.01" min="0"
                         class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
                 </div>
 
@@ -228,7 +260,6 @@
     </div>
 </template>
 
-
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import debounce from "lodash.debounce";
@@ -243,23 +274,23 @@ const productDialog = ref(null);
 const isEditing = ref(false);
 
 const dateRange = ref({
-    start: '',
-    end: ''
+    start: "",
+    end: "",
 });
 
 // Pagination
 const currentPage = ref(1);
 const perPage = 25;
 
-const syncFilter = ref('all')
+const syncFilter = ref("all");
 
 const filteredProducts = computed(() => {
     let products = pendingProducts.value;
 
-    if (syncFilter.value === 'synced') {
-        products = products.filter(p => p.is_synced);
-    } else if (syncFilter.value === 'unsynced') {
-        products = products.filter(p => !p.is_synced);
+    if (syncFilter.value === "synced") {
+        products = products.filter((p) => p.is_synced);
+    } else if (syncFilter.value === "unsynced") {
+        products = products.filter((p) => !p.is_synced);
     }
 
     if (dateRange.value.start && dateRange.value.end) {
@@ -267,7 +298,7 @@ const filteredProducts = computed(() => {
         const end = new Date(dateRange.value.end);
         end.setDate(end.getDate() + 1); // include full end day
 
-        products = products.filter(p => {
+        products = products.filter((p) => {
             const updatedAt = new Date(p.updated_at);
             return updatedAt >= start && updatedAt < end;
         });
@@ -277,22 +308,22 @@ const filteredProducts = computed(() => {
 });
 
 function clearDateFilter() {
-    dateRange.value.start = '';
-    dateRange.value.end = '';
+    dateRange.value.start = "";
+    dateRange.value.end = "";
 }
-
 
 const currentUser = ref(null);
 
 onMounted(async () => {
     currentUser.value = await window.electronAPI.getLoggedInUser();
-    await fetchSales();
 });
 
+// Permissions
 const can = (permission) => {
     return currentUser.value?.permissions?.includes(permission);
 };
 
+// Pagination helpers
 const paginatedProducts = computed(() => {
     const start = (currentPage.value - 1) * perPage;
     return filteredProducts.value.slice(start, start + perPage);
@@ -307,21 +338,27 @@ function prevPage() {
     if (currentPage.value > 1) currentPage.value--;
 }
 
+// Detect duplicate products
 const duplicateIds = computed(() => {
-    const existing = existingProducts.value.map(p => ({
+    const existing = existingProducts.value.map((p) => ({
         name: p.name.toLowerCase().trim(),
-        brand: p.brand?.toLowerCase().trim() || ""
+        brand: p.brand?.toLowerCase().trim() || "",
     }));
 
     return pendingProducts.value
-        .filter(p => existing.some(e =>
-            e.name === p.name.toLowerCase().trim() &&
-            e.brand === (p.brand?.toLowerCase().trim() || "")
-        ))
-        .map(p => p.id);
+        .filter((p) =>
+            existing.some(
+                (e) =>
+                    e.name === p.name.toLowerCase().trim() &&
+                    e.brand === (p.brand?.toLowerCase().trim() || "")
+            )
+        )
+        .map((p) => p.id);
 });
 
+// ---------------------
 // Main Form
+// ---------------------
 const form = ref({
     id: null,
     product_uuid: "",
@@ -340,88 +377,96 @@ const form = ref({
     buying_price_per_unit: 0,
     min_days_to_notify_expiring: 0,
     status: "pending",
+    percentage_markup: 0,
 });
 
-// Suggestions (computed once)
-const brandSuggestions = computed(() =>
-    Array.from(new Set(existingProducts.value.map(p => p.brand).filter(Boolean)))
-);
+// ---------------------
+// Autocomplete
+// ---------------------
+const searchQuery = ref("");
+const suggestions = ref([]);
+const showSuggestions = ref(false);
 
+const onSearch = debounce(async () => {
+    if (!searchQuery.value.trim()) {
+        suggestions.value = [];
+        showSuggestions.value = false;
+        return;
+    }
+
+    const res = await window.electronAPI.readProductsPending(searchQuery.value);
+    console.log("Search results:", res);
+    if (res.success) {
+        const q = searchQuery.value.toLowerCase();
+        suggestions.value = res.products.filter(
+            (p) =>
+                p.name.toLowerCase().includes(q) ||
+                (p.brand && p.brand.toLowerCase().includes(q))
+        );
+        showSuggestions.value = suggestions.value.length > 0;
+    }
+}, 300);
+
+
+function selectProduct(product) {
+    // Autofill form
+    form.value.name = product.name;
+    form.value.brand = product.brand || "";
+    form.value.category = product.category || "";
+    form.value.form = product.form || "";
+    form.value.expire_date = product.expire_date?.split("T")[0] || "";
+    form.value.buying_price = product.buying_price ?? 0;
+    form.value.selling_price_per_unit = product.selling_price_per_unit ?? 0;
+    form.value.supplier_name = product.supplier_name || "";
+    form.value.quantity_remained = product.quantity_remained ?? 0;
+    form.value.minimum_stock = product.minimum_stock ?? 0;
+    form.value.buying_price_per_unit = product.buying_price_per_unit ?? 0;
+    form.value.min_days_to_notify_expiring =
+        product.min_days_to_notify_expiring ?? 0;
+
+    // Update search field with chosen product
+    searchQuery.value = `${product.name} (${product.brand || "No brand"})`;
+    showSuggestions.value = false;
+    suggestions.value = [];
+}
+
+// ---------------------
 // Autofill Tracking
+// ---------------------
 const autofilledFields = ref(new Set());
 
-// Auto-calculate unit price
+// Auto-calc total buying price
 watch(
-    () => [form.value.buying_price, form.value.quantity_remained],
-    ([newBuyingPrice, newQuantity]) => {
-        if (newQuantity > 0 && newBuyingPrice >= 0) {
-            form.value.buying_price_per_unit = +(
-                newBuyingPrice / newQuantity
+    () => [form.value.quantity_remained, form.value.buying_price_per_unit],
+    ([newQuantity, newUnitPrice]) => {
+        if (newQuantity > 0 && newUnitPrice >= 0) {
+            form.value.buying_price = +(
+                newQuantity * newUnitPrice
             ).toFixed(2);
         } else {
-            form.value.buying_price_per_unit = 0;
+            form.value.buying_price = 0;
         }
     }
 );
 
-// Debounced autofill
 watch(
-    () => form.value.name,
-    debounce((newValue) => {
-        if (!newValue || existingProducts.value.length === 0) return;
-
-        const lowerInput = newValue.toLowerCase();
-        let matched = existingProducts.value.find(
-            (p) =>
-                p.name.toLowerCase() === lowerInput ||
-                p.brand.toLowerCase() === lowerInput
-        );
-
-        if (!matched) {
-            matched = existingProducts.value.find(
-                (p) =>
-                    p.name.toLowerCase().includes(lowerInput) ||
-                    p.brand.toLowerCase().includes(lowerInput)
-            );
+    () => [form.value.buying_price_per_unit, form.value.selling_price_per_unit],
+    ([buying, selling]) => {
+        if (buying > 0 && selling > 0) {
+            form.value.percentage_markup = +(
+                ((selling - buying) / buying) * 100
+            ).toFixed(2);
+        } else {
+            form.value.percentage_markup = 0;
         }
-
-        if (matched) {
-            if (!autofilledFields.value.has("brand")) form.value.brand = matched.brand || "";
-            if (!autofilledFields.value.has("category")) form.value.category = matched.category || "";
-            if (!autofilledFields.value.has("form")) form.value.form = matched.form || "";
-            if (!autofilledFields.value.has("expire_date")) form.value.expire_date = matched.expire_date?.split("T")[0] || "";
-            if (!autofilledFields.value.has("batch_no")) form.value.batch_no = matched.batch_no || "";
-            if (!autofilledFields.value.has("buying_price")) form.value.buying_price = matched.buying_price ?? 0;
-            if (!autofilledFields.value.has("selling_price_per_unit")) form.value.selling_price_per_unit = matched.selling_price_per_unit ?? 0;
-            if (!autofilledFields.value.has("supplier_name")) form.value.supplier_name = matched.supplier_name || "";
-            if (!autofilledFields.value.has("received_date")) form.value.received_date = matched.received_date?.split("T")[0] || "";
-            if (!autofilledFields.value.has("quantity_remained")) form.value.quantity_remained = matched.quantity_remained ?? 0;
-            if (!autofilledFields.value.has("minimum_stock")) form.value.minimum_stock = matched.minimum_stock ?? 0;
-            if (!autofilledFields.value.has("buying_price_per_unit")) form.value.buying_price_per_unit = matched.buying_price_per_unit ?? 0;
-            if (!autofilledFields.value.has("min_days_to_notify_expiring")) form.value.min_days_to_notify_expiring = matched.min_days_to_notify_expiring ?? 0;
-        }
-    }, 300)
+    }
 );
 
-// Track edits per input
-watch(() => form.value.brand, () => autofilledFields.value.add("brand"));
-watch(() => form.value.category, () => autofilledFields.value.add("category"));
-watch(() => form.value.form, () => autofilledFields.value.add("form"));
-watch(() => form.value.expire_date, () => autofilledFields.value.add("expire_date"));
-watch(() => form.value.batch_no, () => autofilledFields.value.add("batch_no"));
-watch(() => form.value.buying_price, () => autofilledFields.value.add("buying_price"));
-watch(() => form.value.selling_price_per_unit, () => autofilledFields.value.add("selling_price_per_unit"));
-watch(() => form.value.supplier_name, () => autofilledFields.value.add("supplier_name"));
-watch(() => form.value.received_date, () => autofilledFields.value.add("received_date"));
-watch(() => form.value.quantity_remained, () => autofilledFields.value.add("quantity_remained"));
-watch(() => form.value.minimum_stock, () => autofilledFields.value.add("minimum_stock"));
-watch(() => form.value.buying_price_per_unit, () => autofilledFields.value.add("buying_price_per_unit"));
-watch(() => form.value.min_days_to_notify_expiring, () => autofilledFields.value.add("min_days_to_notify_expiring"));
 
 // Init
 onMounted(async () => {
     fetchPendingProducts();
-    const res = await window.electronAPI.readProducts();
+    const res = await window.electronAPI.readProductsPending();
     if (res.success) existingProducts.value = res.products;
 });
 
@@ -510,7 +555,11 @@ async function syncToCloud() {
     try {
         const result = await window.electronAPI.syncPendingProductsToCloud();
         if (result.status === "success") {
-            Swal.fire("Synced!", `${result.synced} products synced successfully.`, "success");
+            Swal.fire(
+                "Synced!",
+                `${result.synced} products synced successfully.`,
+                "success"
+            );
         } else {
             Swal.fire("Warning", result.message || "Sync failed", "warning");
         }
@@ -521,8 +570,10 @@ async function syncToCloud() {
     }
 }
 </script>
+
 <style scoped>
 dialog::backdrop {
     background: rgba(0, 0, 0, 0.5);
+
 }
 </style>

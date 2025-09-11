@@ -29,11 +29,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("login-user", credentials),
   getLoggedInUser: () => ipcRenderer.invoke("get-logged-in-user"),
   invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args),
-  logoutUser: () => ipcRenderer.invoke('logout-user'),
+  logoutUser: () => ipcRenderer.invoke("logout-user"),
 
   createProduct: async (productData) =>
     ipcRenderer.invoke("create-product", productData),
   readProducts: async () => ipcRenderer.invoke("read-products"),
+  readProductsPending: async (search) =>
+    ipcRenderer.invoke("read-products_pending", search),
   updateProduct: async (id, updates) =>
     ipcRenderer.invoke("update-product", { id, updates }),
   deleteProduct: async (id) => ipcRenderer.invoke("delete-product", id),

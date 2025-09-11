@@ -50,6 +50,26 @@ export default function registerProductHandlers() {
     }
   });
 
+  // main.js
+  ipcMain.handle("read-products_pending", async (event, search = "") => {
+    try {
+      if (!search.trim()) {
+        return { success: true, products: [] };
+      }
+
+      const q = `%${search.toLowerCase()}%`;
+
+      const products = await db("products")
+        .whereRaw("LOWER(name) LIKE ?", [q])
+        .orWhereRaw("LOWER(brand) LIKE ?", [q])
+        .limit(20);
+
+      return { success: true, products };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  });
+
   ipcMain.handle("update-product", async (_event, { id, updates }) => {
     try {
       const result = await productLogic.updateProduct(id, updates);

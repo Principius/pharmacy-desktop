@@ -9,7 +9,8 @@
         </h2>
       </div>
 
-      <router-link to="/sales" v-if="can('canViewSales')" class="px-4 py-2 text-white transition bg-gray-700 rounded hover:bg-gray-800">
+      <router-link to="/sales" v-if="can('canViewSales')"
+        class="px-4 py-2 text-white transition bg-gray-700 rounded hover:bg-gray-800">
         View Sales
       </router-link>
     </div>
@@ -20,10 +21,22 @@
         class="w-full px-4 py-2 text-sm border rounded shadow-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
     </div>
 
-    <!-- Info Alert -->
     <div class="p-4 mb-4 text-sm text-blue-800 bg-blue-100 rounded-lg dark:bg-blue-900 dark:text-blue-300">
-      Only products with quantity remaining and valid (not expired) are shown
-      here.
+      Showing all products.
+      <span v-if="hideExpired">Expired products are hidden.</span>
+      <span v-if="hideZeroStock"> Out-of-stock products are hidden.</span>
+    </div>
+
+    <!-- Toggle Filters -->
+    <div class="flex gap-4 mb-4">
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" v-model="hideExpired" class="accent-purple-600" />
+        Hide Expired
+      </label>
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" v-model="hideZeroStock" class="accent-purple-600" />
+        Hide Out-of-Stock
+      </label>
     </div>
 
     <!-- Product Table -->
@@ -31,24 +44,12 @@
       <table class="min-w-full text-sm text-left text-gray-800 bg-white dark:text-gray-200 dark:bg-gray-900">
         <thead class="bg-gray-100 dark:bg-gray-800">
           <tr>
-            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">
-              Select
-            </th>
-            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">
-              Name
-            </th>
-            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">
-              Brand
-            </th>
-            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">
-              Expire Date
-            </th>
-            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">
-              Batch No.
-            </th>
-            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">
-              Selling Price
-            </th>
+            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Select</th>
+            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Name</th>
+            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Brand</th>
+            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Expire Date</th>
+            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Batch No.</th>
+            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Selling Price</th>
             <th class="px-4 py-3 font-semibold border-b dark:border-gray-700" v-if="can('canSeeStock')">
               Qty Left
             </th>
@@ -56,8 +57,11 @@
         </thead>
 
         <tbody>
-          <tr v-for="product in filteredProducts" :key="product.id"
-            class="transition-colors border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+          <tr v-for="product in filteredProducts" :key="product.id" :class="[
+            'transition-colors border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800',
+            isExpired(product) ? 'bg-red-100 dark:bg-red-900' : '',
+            isOutOfStock(product) ? 'bg-yellow-100 dark:bg-yellow-900' : ''
+          ]">
             <td class="px-4 py-3 text-center">
               <input type="checkbox" v-model="selected" :value="product" class="accent-purple-600" />
             </td>
@@ -70,7 +74,7 @@
           </tr>
 
           <tr v-if="filteredProducts.length === 0">
-            <td colspan="5" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+            <td colspan="7" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
               No products found.
             </td>
           </tr>
@@ -93,7 +97,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import Back from "@/components/Back.vue";
@@ -102,67 +106,49 @@ const products = ref([]);
 const selected = ref([]);
 const searchTerm = ref("");
 const router = useRouter();
-
 const currentUser = ref(null);
+const hideExpired = ref(true);
+const hideZeroStock = ref(true);
 
-onMounted(async () => {
-  currentUser.value = await window.electronAPI.getLoggedInUser();
-  await fetchSales();
-});
+const isExpired = (product) => new Date(product.expire_date) < new Date();
+const isOutOfStock = (product) => product.quantity_remained <= 0;
 
-const can = (permission) => {
-  return currentUser.value?.permissions?.includes(permission);
-};
-// Load products
+const can = (permission) => currentUser.value?.permissions?.includes(permission);
+
 async function loadProducts() {
   try {
     const response = await window.electronAPI.readProducts();
-    if (response.success) {
-      products.value = response.products;
-    } else {
-      Swal.fire("Error", response.error || "Failed to load products", "error");
-    }
+    if (response.success) products.value = response.products;
+    else Swal.fire("Error", response.error || "Failed to load products", "error");
   } catch (error) {
     Swal.fire("Error", error.message || "Unexpected error", "error");
   }
 }
 
-// Filter products based on search
-const filteredProducts = computed(() => {
-  const now = new Date();
-
-  return products.value
-    .filter((product) => {
-      const expireDate = new Date(product.expire_date);
-      return product.quantity_remained > 0 && expireDate > now;
-    })
-    .filter((product) =>
-      [product.name, product.brand, product.batch_no]
-        .join(" ")
-        .toLowerCase()
-        .includes(searchTerm.value.toLowerCase())
-    );
-});
-
-// Proceed to sale
-const proceedToSale = () => {
-  router.push({
-    name: "SalesCreate",
-    query: { selected: JSON.stringify(selected.value) },
-  });
-};
-
+// Persist selected products in localStorage
 onMounted(() => {
+  const saved = localStorage.getItem("selectedProducts");
+  if (saved) selected.value = JSON.parse(saved);
   loadProducts();
 });
 
-const formatTZS = (amount) => {
-  return new Intl.NumberFormat('en-TZ', {
-    style: 'currency',
-    currency: 'TZS',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount)
-}
+watch(selected, (newVal) => {
+  localStorage.setItem("selectedProducts", JSON.stringify(newVal));
+}, { deep: true });
 
+const filteredProducts = computed(() => {
+  return products.value
+    .filter(p => !(hideExpired.value && isExpired(p)) && !(hideZeroStock.value && isOutOfStock(p)))
+    .filter(p => [p.name, p.brand, p.batch_no].join(" ").toLowerCase().includes(searchTerm.value.toLowerCase()));
+});
+
+const proceedToSale = () => {
+  router.push({ name: "SalesCreate" }); // no query needed
+};
+
+const formatTZS = (amount) => new Intl.NumberFormat('en-TZ', { style: 'currency', currency: 'TZS', minimumFractionDigits: 0 }).format(amount);
+
+onMounted(async () => {
+  currentUser.value = await window.electronAPI.getLoggedInUser();
+});
 </script>

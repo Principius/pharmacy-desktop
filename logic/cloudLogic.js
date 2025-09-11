@@ -1,37 +1,50 @@
-import sessions from '../electron/db/queries/sessions.js'
-import db from '../electron/db/connection.js'
-import axios from 'axios'
+import sessions from "../electron/db/queries/sessions.js";
+import db from "../electron/db/connection.js";
+import axios from "axios";
 
-export default async function loginAndSync({ email, password, deviceName, tenantSubdomain }) {
-  if (!email || !password) throw new Error('Email and Password are required')
-  if (!tenantSubdomain) throw new Error('Tenant subdomain is required')
+export default async function loginAndSync({
+  email,
+  password,
+  deviceName,
+  tenantSubdomain,
+}) {
+  if (!email || !password) throw new Error("Email and Password are required");
+  if (!tenantSubdomain) throw new Error("Tenant subdomain is required");
 
   // Use the tenantSubdomain passed to the function dynamically
-  const tenantUrl = `https://${tenantSubdomain}.afyatrack.co.tz`
-  //const tenantUrl = `http://${tenantSubdomain}.localhost:8000`
+ const tenantUrl = `https://${tenantSubdomain}.automatext.co.tz`
+  //const tenantUrl = `http://${tenantSubdomain}.localhost:8000`;
 
   try {
     const response = await axios.post(`${tenantUrl}/api/electron/login`, {
       email,
       password,
-      device_name: deviceName
-    })
+      device_name: deviceName,
+    });
 
-    const { access_token, tenant_id, device_id } = response.data
+    const { access_token, tenant_id, device_id } = response.data;
 
     // Await this operation if it returns a promise
     await sessions(db).createOrUpdate({
       tenant_id,
       device_id,
       access_token,
-      tenant_url: tenantUrl
-    })
+      tenant_url: tenantUrl,
+    });
 
-    return { success: true, access_token, tenant_id, device_id, tenant_url: tenantUrl }
+    return {
+      success: true,
+      access_token,
+      tenant_id,
+      device_id,
+      tenant_url: tenantUrl,
+    };
   } catch (error) {
-    console.error('Login error:', error.response?.data || error.message)
+    console.error("Login error:", error.response?.data || error.message);
 
-    const message = error.response?.data?.message || 'Login failed. Please check your credentials or tenant URL.'
-    throw new Error(message)
+    const message =
+      error.response?.data?.message ||
+      "Login failed. Please check your credentials or tenant URL.";
+    throw new Error(message);
   }
 }

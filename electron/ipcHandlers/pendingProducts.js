@@ -1,15 +1,24 @@
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4 } from "uuid";
 import syncPendingProductsToCloud from "../../logic/syncPendingProductsToCloud.js";
 
 export default function registerPendingProductsHandlers(ipcMain, db) {
   ipcMain.handle("pendingProducts:create", async (_event, product) => {
-    const productWithUUID = {
-      ...product,
-      product_uuid: uuidv4(), // Assign UUID if not already set
-    }
+    try {
+      const productWithDefaults = {
+        ...product,
+        product_uuid: uuidv4(), // Always assign unique UUID
+        batch_no:
+          product.batch_no && product.batch_no.trim() !== ""
+            ? product.batch_no // if user passed (from autofill)
+            : `BATCH-${Date.now()}`, // auto-generate one
+      };
 
-    const [id] = await db("pending_products").insert(productWithUUID);
-    return { id, ...productWithUUID };
+      const [id] = await db("pending_products").insert(productWithDefaults);
+
+      return { success: true, id };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
   });
 
   ipcMain.handle("pendingProducts:read", async () => {
