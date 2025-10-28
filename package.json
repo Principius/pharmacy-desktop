@@ -1,7 +1,7 @@
 {
   "name": "pharmacy-desktop",
-  "version": "1.0.4",
-  "description": "Community pharmacy management desktop application",
+  "version": "1.0.5",
+  "description": "Business management desktop application",
   "author": {
     "name": "Principius",
     "email": "princepius200120@gmail.com"
@@ -20,7 +20,7 @@
   },
   "build": {
     "appId": "com.afyatrack.pharmacy",
-    "productName": "AfyaTrack",
+    "productName": "AUTOMATE",
     "icon": "build/icon",
     "directories": {
       "output": "dist_electron"

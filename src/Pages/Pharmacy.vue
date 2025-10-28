@@ -2,7 +2,7 @@
     <div
         class="max-w-md p-8 mx-auto mt-8 bg-white shadow-lg dark:bg-gray-900 rounded-xl ring-1 ring-gray-200 dark:ring-gray-700">
         <h2 class="mb-6 text-3xl font-extrabold text-center text-gray-900 dark:text-gray-100">
-            Register Pharmacy
+            Register Business
         </h2>
 
         <form @submit.prevent="submitForm" class="space-y-6">
@@ -11,7 +11,7 @@
                 <label for="name" class="block mb-1 text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Name <span class="text-red-500">*</span>
                 </label>
-                <input id="name" type="text" v-model="form.name" required placeholder="Enter pharmacy name"
+                <input id="name" type="text" v-model="form.name" required placeholder="Enter business name"
                     class="w-full px-4 py-3 text-gray-900 placeholder-gray-400 transition duration-200 border border-gray-300 rounded-md dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
             </div>
 

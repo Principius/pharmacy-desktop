@@ -48,7 +48,6 @@
             <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Name</th>
             <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Brand</th>
             <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Expire Date</th>
-            <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Batch No.</th>
             <th class="px-4 py-3 font-semibold border-b dark:border-gray-700">Selling Price</th>
             <th class="px-4 py-3 font-semibold border-b dark:border-gray-700" v-if="can('canSeeStock')">
               Qty Left
@@ -57,18 +56,20 @@
         </thead>
 
         <tbody>
-          <tr v-for="product in filteredProducts" :key="product.id" :class="[
-            'transition-colors border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800',
+          <tr v-for="product in paginatedProducts" :key="product.id" @dblclick="toggleSelection(product)" :class="[
+            'transition-colors border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer',
             isExpired(product) ? 'bg-red-100 dark:bg-red-900' : '',
-            isOutOfStock(product) ? 'bg-yellow-100 dark:bg-yellow-900' : ''
+            isOutOfStock(product) ? 'bg-yellow-100 dark:bg-yellow-900' : '',
+            isSelected(product) ? 'bg-purple-100 dark:bg-purple-800' : ''   // highlight when selected
           ]">
+            <!-- Checkbox stays -->
             <td class="px-4 py-3 text-center">
-              <input type="checkbox" v-model="selected" :value="product" class="accent-purple-600" />
+              <input type="checkbox" :checked="isSelected(product)" @change="toggleSelection(product)"
+                class="accent-purple-600" />
             </td>
             <td class="px-4 py-3">{{ product.name }}</td>
             <td class="px-4 py-3">{{ product.brand }}</td>
             <td class="px-4 py-3">{{ product.expire_date }}</td>
-            <td class="px-4 py-3">{{ product.batch_no }}</td>
             <td class="px-4 py-3">{{ formatTZS(product.selling_price_per_unit) }}</td>
             <td class="px-4 py-3" v-if="can('canSeeStock')">{{ product.quantity_remained }}</td>
           </tr>
@@ -79,7 +80,22 @@
             </td>
           </tr>
         </tbody>
+
       </table>
+      <div class="flex items-center justify-between mt-4">
+        <button class="px-3 py-1 text-white bg-purple-600 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          :disabled="currentPage === 1" @click="currentPage--">
+          Previous
+        </button>
+
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+
+        <button class="px-3 py-1 text-white bg-purple-600 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          :disabled="currentPage === totalPages" @click="currentPage++">
+          Next
+        </button>
+      </div>
+
     </div>
 
     <!-- Floating Make Sale Button with Count -->
@@ -110,9 +126,12 @@ const currentUser = ref(null);
 const hideExpired = ref(true);
 const hideZeroStock = ref(true);
 
+// Pagination
+const currentPage = ref(1);
+const pageSize = ref(10); // items per page
+
 const isExpired = (product) => new Date(product.expire_date) < new Date();
 const isOutOfStock = (product) => product.quantity_remained <= 0;
-
 const can = (permission) => currentUser.value?.permissions?.includes(permission);
 
 async function loadProducts() {
@@ -136,14 +155,24 @@ watch(selected, (newVal) => {
   localStorage.setItem("selectedProducts", JSON.stringify(newVal));
 }, { deep: true });
 
+// Filtered products
 const filteredProducts = computed(() => {
   return products.value
     .filter(p => !(hideExpired.value && isExpired(p)) && !(hideZeroStock.value && isOutOfStock(p)))
     .filter(p => [p.name, p.brand, p.batch_no].join(" ").toLowerCase().includes(searchTerm.value.toLowerCase()));
 });
 
+// Paginated products
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  return filteredProducts.value.slice(start, start + pageSize.value);
+});
+
+// Total pages
+const totalPages = computed(() => Math.ceil(filteredProducts.value.length / pageSize.value));
+
 const proceedToSale = () => {
-  router.push({ name: "SalesCreate" }); // no query needed
+  router.push({ name: "SalesCreate" });
 };
 
 const formatTZS = (amount) => new Intl.NumberFormat('en-TZ', { style: 'currency', currency: 'TZS', minimumFractionDigits: 0 }).format(amount);
@@ -151,4 +180,46 @@ const formatTZS = (amount) => new Intl.NumberFormat('en-TZ', { style: 'currency'
 onMounted(async () => {
   currentUser.value = await window.electronAPI.getLoggedInUser();
 });
+
+const isSelected = (product) => {
+  return selected.value.some(p => p.id === product.id);
+};
+
+const toggleSelection = async (product) => {
+  if (isSelected(product)) {
+    // If already selected → remove it
+    selected.value = selected.value.filter(p => p.id !== product.id);
+  } else {
+    // Prompt for quantity
+    const { value: qty } = await Swal.fire({
+      title: `Enter quantity for ${product.name}`,
+      input: "number",
+      inputAttributes: {
+        min: 1,
+        max: product.quantity_remained,
+        step: 1,
+      },
+      inputValue: 1,
+      showCancelButton: true,
+      confirmButtonText: "Add",
+      cancelButtonText: "Cancel",
+      inputValidator: (value) => {
+        if (!value || value <= 0) return "Please enter a valid quantity";
+        if (value > product.quantity_remained) return "Not enough stock available";
+      },
+    });
+
+ if (qty) {
+  selected.value.push({
+    ...product,
+    quantity_sold: parseInt(qty, 10),   // ✅ use quantity_sold instead of quantity_to_sell
+    price_per_unit: product.selling_price_per_unit, // carry forward the default unit price
+    discount_applied: 0, // initialize discount
+  });
+}
+
+  }
+};
+
+
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500">
     <div class="w-full max-w-md p-8 mt-12 text-center bg-white shadow-xl rounded-2xl">
-      <h1 class="mb-2 text-3xl font-bold text-gray-800">Welcome to AfyaTrack</h1>
+      <h1 class="mb-2 text-3xl font-bold text-gray-800">Welcome to AUTOMATE</h1>
       <p class="mb-6 text-sm font-medium text-gray-600">
         No users found. Please register the <span class="font-semibold text-purple-600">first administrator account</span> to get started.
       </p>

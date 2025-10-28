@@ -51,6 +51,20 @@
                 </select>
             </label>
         </div>
+<div class="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-3 mb-4">
+  <div class="p-4 bg-blue-100 rounded-lg dark:bg-blue-900/30">
+    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Quantity</p>
+    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ totalQuantity.toLocaleString() }}</p>
+  </div>
+  <div class="p-4 bg-green-100 rounded-lg dark:bg-green-900/30">
+    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Sales</p>
+    <p class="text-2xl font-bold text-green-600">{{ totalAmount.toLocaleString() }} TZS</p>
+  </div>
+  <div class="p-4 bg-indigo-100 rounded-lg dark:bg-indigo-900/30" v-if="can('canViewProfit')">
+    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Profit</p>
+    <p class="text-2xl font-bold text-indigo-600">{{ totalProfit.toLocaleString() }} TZS</p>
+  </div>
+</div>
 
         <div class="overflow-x-auto border border-gray-200 rounded-lg dark:border-gray-700">
             <table class="w-full text-left table-auto">
@@ -104,10 +118,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="sale in filteredSales" :key="sale.id"
+                    <tr v-for="(sale, index) in filteredSales" :key="sale.id"
                         class="transition-colors border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
                         <td class="px-5 py-3 font-medium text-gray-900 dark:text-gray-100">
-                            {{ sale.id }}
+                           {{ index + 1 + (currentPage - 1) * perPage }}
                         </td>
                         <td class="px-5 py-3 text-gray-900 dark:text-gray-100">
                             {{ sale.product_name }}
@@ -137,13 +151,13 @@
                             </span>
                         </td>
                         <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-400">
-                            {{ sale.updated_at
-                                ? new Date(sale.updated_at + "Z").toLocaleString("en-GB", {
+                            {{ sale.created_at_eat
+                                ? new Date(sale.created_at_eat + "Z").toLocaleString("en-GB", {
                                     timeZone: "Africa/Dar_es_Salaam",
-                            dateStyle: "short",
-                            timeStyle: "medium"
-                            })
-                            : "-" }}
+                                    dateStyle: "short",
+                                    timeStyle: "medium"
+                                })
+                                : "-" }}
                         </td>
                         <td class="px-5 py-3 text-gray-900 dark:text-gray-100">
                             {{ sale.seller_name || "N/A" }}
@@ -176,6 +190,8 @@
                         <td class="px-5 py-3 text-gray-700 dark:text-gray-200">
                             {{ totalQuantity }}
                         </td>
+                        <td></td>
+                         <td></td>
                         <td class="px-5 py-3 text-green-600">
                             {{ totalAmount.toLocaleString() }} TZS
                         </td>
@@ -187,12 +203,31 @@
                     </tr>
                 </tfoot>
             </table>
+            <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 mt-4">
+                <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1"
+                    class="px-3 py-1 text-sm font-medium bg-gray-200 rounded disabled:opacity-50">
+                    Previous
+                </button>
+
+                <button v-for="page in totalPages" :key="page" @click="goToPage(page)"
+                    class="px-3 py-1 text-sm font-medium rounded" :class="page === currentPage
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 hover:bg-gray-300'">
+                    {{ page }}
+                </button>
+
+                <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages"
+                    class="px-3 py-1 text-sm font-medium bg-gray-200 rounded disabled:opacity-50">
+                    Next
+                </button>
+            </div>
+
         </div>
     </div>
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import Back from "@/components/Back.vue";
@@ -202,6 +237,14 @@ const sales = ref([]);
 const searchTerm = ref("");
 const isSyncing = ref(false);
 const router = useRouter();
+
+const totalPages = ref(1);
+const currentPage = ref(1);
+const perPage = 25;
+const totalQuantity = ref(0);
+const totalAmount = ref(0);
+const totalProfit = ref(0);
+
 
 const startDate = ref("");
 const endDate = ref("");
@@ -247,8 +290,30 @@ const sellerOptions = computed(() => {
     return Array.from(uniqueSellers);
 });
 
-const fetchSales = async () => {
-    sales.value = await window.electronAPI.getSales();
+const fetchSales = async (page = 1) => {
+  const result = await window.electronAPI.getSales({
+    page,
+    perPage,
+    startDate: startDate.value || null,
+    endDate: endDate.value || null,
+    sellerName: selectedSeller.value || null,
+    search: searchTerm.value || "",
+  });
+
+  sales.value = result.sales;
+  totalPages.value = result.totalPages;
+  currentPage.value = result.page;
+
+  totalQuantity.value = Number(result.totals?.totalQuantity || 0);
+  totalAmount.value = Number(result.totals?.totalAmount || 0);
+  totalProfit.value = Number(result.totals?.totalProfit || 0);
+};
+
+// handle pagination
+const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages.value) {
+        fetchSales(page);
+    }
 };
 
 const goToEdit = (sale) => {
@@ -328,25 +393,7 @@ const filteredSales = computed(() => {
     });
 });
 
-const totalQuantity = computed(() => {
-    return filteredSales.value.reduce(
-        (sum, sale) => sum + Number(sale.quantity_sold),
-        0
-    );
+watch([startDate, endDate, selectedSeller, searchTerm], () => {
+  fetchSales(1);
 });
-
-const totalAmount = computed(() => {
-    return filteredSales.value.reduce(
-        (sum, sale) => sum + Number(sale.total_cost),
-        0
-    );
-});
-
-const totalProfit = computed(() => {
-    return filteredSales.value.reduce(
-        (sum, sale) => sum + Number(sale.profit || 0),
-        0
-    );
-});
-
 </script>

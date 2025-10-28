@@ -194,7 +194,7 @@ export default async function createSales(salesData) {
       </tfoot>
     </table>
 
-    <div class="powered">Powered by AfyaTrack</div>
+    <div class="powered">Powered by Automate-XT</div>
   </body>
 </html>
 `;

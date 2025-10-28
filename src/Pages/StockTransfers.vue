@@ -19,10 +19,10 @@
                 </button>
             </div>
 
-            <h2 class="mb-2 text-2xl font-bold text-gray-800 dark:text-black">Pharmacies (for transfer)</h2>
+            <h2 class="mb-2 text-2xl font-bold text-gray-800 dark:text-black">Businesses (for transfer)</h2>
             <select v-model="toPharmacy"
                 class="w-full p-3 text-gray-700 transition bg-white border border-gray-300 rounded-md dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option disabled value="">Select a pharmacy</option>
+                <option disabled value="">Select a business</option>
                 <option v-for="pharmacy in pharmacies" :key="pharmacy.id" :value="pharmacy.id">
                     {{ pharmacy.name }}
                 </option>

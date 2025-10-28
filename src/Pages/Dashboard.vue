@@ -58,7 +58,7 @@
                     </div>
 
                     <div @click="$router.push('/lowstock')" class="cursor-pointer">
-                        <DashboardCard title="Low Stock Drugs" icon="fas fa-boxes" bg="from-purple-400 to-purple-600"
+                        <DashboardCard title="Low Stock Products" icon="fas fa-boxes" bg="from-purple-400 to-purple-600"
                             :lines="['Total: ' + lowStockDrugs]" />
                     </div>
                 </div>

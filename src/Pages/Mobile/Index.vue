@@ -4,12 +4,12 @@
         <Back />
         <!-- Header -->
         <h1 class="mt-4 mb-6 text-4xl font-extrabold tracking-tight text-center text-purple-700 dark:text-purple-400">
-            Want a Website or Mobile App for Your Pharmacy?
+            Want a Website or Mobile App for Your Business?
         </h1>
 
         <!-- Intro Paragraph -->
         <p class="max-w-3xl mx-auto mb-10 text-lg text-center text-gray-700 dark:text-gray-300">
-            We can help you grow your pharmacy business with a custom-built
+            We can help you grow your  business with a custom-built
             <span class="font-semibold text-blue-600 dark:text-blue-400">mobile app</span> and
             <span class="font-semibold text-green-600 dark:text-green-400">website</span>.
             With our tech solutions, you'll reach more customers, streamline operations, and boost your brand online.
@@ -21,7 +21,7 @@
             <div
                 class="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:shadow-lg hover:border-purple-500 transition">
                 <h2 class="mb-4 text-xl font-semibold text-green-700 dark:text-green-400">
-                    🌐 Why Your Pharmacy Needs a Website
+                    🌐 Why Your Business Needs a Website
                 </h2>
                 <ul class="space-y-3 text-gray-700 dark:text-gray-300">
                     <li class="flex items-start gap-2">
@@ -50,7 +50,7 @@
                 </h2>
                 <ul class="space-y-3 text-gray-700 dark:text-gray-300">
                     <li class="flex items-start gap-2">
-                        <span>📦</span> <span>Customers can order medicines easily</span>
+                        <span>📦</span> <span>Customers can order products easily</span>
                     </li>
                     <li class="flex items-start gap-2">
                         <span>🔔</span> <span>Send push notifications for promos & reminders</span>
@@ -71,7 +71,7 @@
         <!-- Call to Action -->
         <div class="mt-12 text-center">
             <p class="mb-4 text-xl font-semibold text-gray-800 dark:text-gray-200">
-                Ready to grow your pharmacy with technology?
+                Ready to grow your Business with technology?
             </p>
             <button @click="contactUs"
                 class="inline-flex items-center gap-2 px-8 py-3 text-lg font-semibold text-white transition-all duration-300 bg-gradient-to-r from-purple-600 to-purple-800 rounded-full shadow hover:scale-105 hover:from-purple-700 hover:to-purple-900 focus:outline-none focus:ring-4 focus:ring-purple-400 dark:focus:ring-purple-700">
@@ -84,6 +84,6 @@
 <script setup>
 import Back from '@/components/Back.vue'
 function contactUs() {
-    window.open('mailto:afyatracktz@gmail.com?subject=Pharmacy Website and App Request', '_blank');
+    window.open('mailto:afyatracktz@gmail.com?subject=Business Website and App Request', '_blank');
 }
 </script>

@@ -88,7 +88,7 @@
             <!-- Header Section -->
             <div class="pb-6 text-center border-b border-gray-300 dark:border-gray-700">
                 <h1 class="text-3xl font-bold tracking-wide text-gray-900 uppercase dark:text-white">
-                    {{ pharmacyInfo?.name || 'Pharmacy Name' }}
+                    {{ pharmacyInfo?.name || 'Business Name' }}
                 </h1>
                 <div class="mt-2 space-x-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                     <span>{{ pharmacyInfo?.phone_number || '-' }}</span>
@@ -96,7 +96,7 @@
                     <span class="truncate" :title="pharmacyInfo?.email || '-'">{{ pharmacyInfo?.email || '-' }}</span>
                     <span>•</span>
                     <span class="truncate" :title="pharmacyInfo?.address || '-'">{{ pharmacyInfo?.address || '-'
-                    }}</span>
+                        }}</span>
                 </div>
             </div>
 
@@ -149,7 +149,7 @@
             <!-- Footer Section -->
             <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
                 <div class="text-sm italic text-gray-400 select-none dark:text-gray-500">
-                    Powered by AfyaTrack
+                    Powered by Automate-XT
                 </div>
                 <div class="flex gap-4">
                     <button @click="closePreview"
@@ -167,7 +167,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import Back from '@/components/Back.vue'
@@ -192,10 +192,11 @@ const updateSelectedProducts = () => {
     if (saved) {
         selectedProducts.value = JSON.parse(saved).map(p => ({
             ...p,
-            quantity_sold: p.quantity_sold || 1,
-            price_per_unit: p.price_per_unit || p.selling_price_per_unit || 0,
-            discount_applied: p.discount_applied || 0,
+            quantity_sold: p.quantity_sold ?? 1,   // ✅ keep entered value if present
+            price_per_unit: p.price_per_unit ?? p.selling_price_per_unit ?? 0,
+            discount_applied: p.discount_applied ?? 0,
         }))
+
     }
 }
 
@@ -205,7 +206,26 @@ onMounted(async () => {
 
     updateSelectedProducts()
     pharmacyInfo.value = await window.electronAPI.pharmacyGetInfo()
+
+     // ✅ Add global keydown listener for Enter
+    window.addEventListener("keydown", handleEnterKey)
 })
+
+onUnmounted(() => {
+    window.removeEventListener("keydown", handleEnterKey)
+})
+
+const handleEnterKey = (e) => {
+    if (e.key === "Enter") {
+        // Prevent default form behavior
+        e.preventDefault()
+
+        // Only submit if products exist and not inside a dialog
+        if (selectedProducts.value.length > 0 && !receiptDialog.value?.open) {
+            submitSales()
+        }
+    }
+}
 
 // Persist edits (qty, price, discount) back to localStorage
 watch(selectedProducts, (newVal) => {
