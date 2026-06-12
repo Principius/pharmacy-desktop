@@ -28,6 +28,7 @@ export default async function syncSalesToCloud() {
         price_per_unit: sale.price_per_unit,
         discount_applied: sale.discount_applied,
         total_cost: sale.total_cost,
+        payment_method_id: sale.payment_method_id,
         price_before_discount: sale.price_before_discount,
         expected_selling_price: sale.expected_selling_price,
         sale_uuid: sale.sale_uuid,

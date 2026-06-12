@@ -20,7 +20,7 @@ export default async function syncSummariesFromCloud() {
 
     await db('summaries')
       .insert({
-        id: 1, // Force singleton entry
+        id: 1, // singleton
         total_sales: summary.total_sales,
         total_revenue: summary.total_revenue,
         total_products: summary.total_products,
@@ -29,6 +29,7 @@ export default async function syncSummariesFromCloud() {
         total_expired_products: summary.total_expired_products,
         total_expenses: summary.total_expenses,
         total_damaged_products: summary.total_damaged_products,
+        overall_net_profit: summary.overallNetProfit, // NEW
         synced_at: new Date()
       })
       .onConflict('id')
@@ -41,6 +42,7 @@ export default async function syncSummariesFromCloud() {
         'total_expired_products',
         'total_expenses',
         'total_damaged_products',
+        'overall_net_profit', // NEW
         'synced_at'
       ])
 

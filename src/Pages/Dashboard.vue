@@ -29,6 +29,35 @@
                             ]" />
                     </div>
 
+                    <DashboardCard title="Today's Expenses" v-if="can('canViewExpenses')" icon="fas fa-money-bill-wave" bg="from-red-400 to-red-600"
+                        :lines="[
+                            'Expenses: ' + formatTZS(dailyExpenses)
+                        ]" />
+
+                    <DashboardCard title="Today's Net Profit" v-if="can('canViewNetProfit')" icon="fas fa-coins" bg="from-green-500 to-green-700"
+                        :lines="[
+                            'Net Profit: ' + formatTZS(dailyNetProfit)
+                        ]" />
+
+                    <DashboardCard title="Weekly Revenue" v-if="can('canViewSales')" icon="fas fa-chart-line" bg="from-blue-400 to-blue-600"
+                        :lines="[
+                            'Sales: ' + formatTZS(weeklyRevenue),
+                            'Period: ' + weeklyStart + ' → ' + weeklyEnd
+                        ]" />
+
+                    <DashboardCard title="Weekly Expenses" v-if="can('canViewExpenses')" icon="fas fa-wallet" bg="from-orange-400 to-orange-600"
+                        :lines="[
+                            'Expenses: ' + formatTZS(weeklyExpenses),
+                            'Period: ' + weeklyStart + ' → ' + weeklyEnd
+                        ]" />
+
+                    <DashboardCard title="Weekly Net Profit" icon="fas fa-hand-holding-usd" v-if="can('canViewNetProfit')"
+                        bg="from-green-500 to-green-700" :lines="[
+                            'Net Profit: ' + formatTZS(weeklyNetProfit),
+                            'Period: ' + weeklyStart + ' → ' + weeklyEnd
+                        ]" />
+
+
                     <div @click="$router.push('/sales')" class="cursor-pointer" v-if="can('canViewSales')">
                         <DashboardCard title="Overall Sales" icon="fas fa-chart-bar" bg="from-blue-400 to-blue-600"
                             :lines="[
@@ -36,6 +65,15 @@
                                 'Total Revenue: ' + formatTZS(totalRevenue),
                             ]" />
                     </div>
+
+                    <DashboardCard title="Overall Expenses" v-if="can('canViewExpenses')" icon="fas fa-wallet" bg="from-red-400 to-red-600" :lines="[
+                        'Expenses: ' + formatTZS(overallExpenses)
+                    ]" />
+
+                    <DashboardCard title="Overall Net Profit" v-if="can('canViewNetProfit')" icon="fas fa-piggy-bank" bg="from-green-600 to-green-800"
+                        :lines="[
+                            'Net Profit: ' + formatTZS(overallNetProfit)
+                        ]" />
 
                     <div @click="$router.push('/products')" class="cursor-pointer">
                         <DashboardCard title="All Products" icon="fas fa-boxes" bg="from-green-500 to-green-700"
@@ -104,6 +142,19 @@ const expiredProducts = ref(0);
 const lowStockDrugs = ref(0);
 const totalProducts = ref(0);
 
+const dailyExpenses = ref(0);
+const dailyNetProfit = ref(0);
+
+const weeklyRevenue = ref(0);
+const weeklyExpenses = ref(0);
+const weeklyNetProfit = ref(0);
+
+const overallRevenue = ref(0);
+const overallExpenses = ref(0);
+const overallNetProfit = ref(0);
+const weeklyStart = ref("");
+const weeklyEnd = ref("");
+
 const graphStats = ref([]);
 const currentYear = new Date().getFullYear();
 const appName = "Automate-XT";
@@ -144,6 +195,20 @@ onMounted(async () => {
     totalSales.value = stats.totalSales;
     totalRevenue.value = stats.totalRevenue;
 
+    dailyExpenses.value = stats.dailyExpenses;
+    dailyNetProfit.value = stats.dailyNetProfit;
+
+    weeklyRevenue.value = stats.weeklyRevenue;
+    weeklyExpenses.value = stats.weeklyExpenses;
+    weeklyNetProfit.value = stats.weeklyNetProfit;
+
+    weeklyStart.value = stats.weeklyStart;
+    weeklyEnd.value = stats.weeklyEnd;
+
+    overallRevenue.value = stats.overallRevenue;
+    overallExpenses.value = stats.overallExpenses;
+    overallNetProfit.value = stats.overallNetProfit;
+
     const productStats = await window.electronAPI.invoke("products:get-dashboard-stats");
     availableProducts.value = productStats.availableProducts;
     expiredProducts.value = productStats.expiredProducts;
@@ -155,4 +220,3 @@ onMounted(async () => {
     graphStats.value = data;
 });
 </script>
-

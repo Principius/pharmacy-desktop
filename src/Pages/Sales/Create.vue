@@ -20,6 +20,7 @@
                             <th class="px-4 py-2">Price per Unit (TZS)</th>
                             <th class="px-4 py-2">Discount</th>
                             <th class="px-4 py-2">Total</th>
+                            <th class="px-4 py-2">Payment Method</th>
                             <th class="px-4 py-2">Action</th> <!-- New column -->
                         </tr>
                     </thead>
@@ -51,6 +52,14 @@
                             <td class="px-4 py-2 font-semibold text-green-600 dark:text-green-400">
                                 {{ ((product.quantity_sold || 0) * (product.price_per_unit || 0) -
                                     (product.discount_applied || 0)).toLocaleString() }} TZS
+                            </td>
+                            <td class="px-4 py-2">
+                                <select v-model="product.payment_method_id"
+                                    class="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-700">
+                                    <option v-for="method in paymentMethods" :key="method.id" :value="method.id">
+                                        {{ method.name }}
+                                    </option>
+                                </select>
                             </td>
                             <td class="px-4 py-2">
                                 <button @click.prevent="removeProduct(index)"
@@ -96,7 +105,7 @@
                     <span class="truncate" :title="pharmacyInfo?.email || '-'">{{ pharmacyInfo?.email || '-' }}</span>
                     <span>•</span>
                     <span class="truncate" :title="pharmacyInfo?.address || '-'">{{ pharmacyInfo?.address || '-'
-                        }}</span>
+                    }}</span>
                 </div>
             </div>
 
@@ -181,6 +190,7 @@ const receiptDialog = ref(null)
 const isPrinting = ref(false)
 const pharmacyInfo = ref(null)
 const currentUser = ref(null)
+const paymentMethods = ref([]);
 
 const resetForm = () => {
     selectedProducts.value = []
@@ -195,6 +205,7 @@ const updateSelectedProducts = () => {
             quantity_sold: p.quantity_sold ?? 1,   // ✅ keep entered value if present
             price_per_unit: p.price_per_unit ?? p.selling_price_per_unit ?? 0,
             discount_applied: p.discount_applied ?? 0,
+            payment_method_id: p.payment_method_id ?? 1,
         }))
 
     }
@@ -207,9 +218,26 @@ onMounted(async () => {
     updateSelectedProducts()
     pharmacyInfo.value = await window.electronAPI.pharmacyGetInfo()
 
-     // ✅ Add global keydown listener for Enter
+    // ✅ Load payment methods from database
+    paymentMethods.value = await window.electronAPI.getPaymentMethods();
+
+    // Set default "Cash" if missing
+    selectedProducts.value = selectedProducts.value.map(p => ({
+        ...p,
+        payment_method_id: p.payment_method_id ?? (paymentMethods.value[0]?.id || 1),
+    }));
+
+    // ✅ Add global keydown listener for Enter
     window.addEventListener("keydown", handleEnterKey)
 })
+
+watch(paymentMethods, () => {
+    selectedProducts.value = selectedProducts.value.map(p => ({
+        ...p,
+        payment_method_id: p.payment_method_id ?? paymentMethods.value[0]?.id,
+    }));
+});
+
 
 onUnmounted(() => {
     window.removeEventListener("keydown", handleEnterKey)
@@ -273,9 +301,12 @@ const submitSales = async () => {
                 total_cost: total_cost > 0 ? total_cost : 0,
                 price_before_discount: p.quantity_sold * (p.selling_price_per_unit_before_discount || p.price_per_unit),
                 expected_selling_price: p.selling_price_per_unit || p.price_per_unit,
-                seller_id: userStore.user?.id || null,
+                seller_id: currentUser.value?.id || null,
+                payment_method_id: p.payment_method_id,
             }
         })
+
+        console.log("Submitting sales:", plainProducts);
 
         const res = await window.electronAPI.createSale(plainProducts)
         if (res.success) {
@@ -303,6 +334,7 @@ const confirmAndPrint = async () => {
                 price_before_discount: p.quantity_sold * (p.selling_price_per_unit_before_discount || p.price_per_unit),
                 expected_selling_price: p.selling_price_per_unit || p.price_per_unit,
                 seller_id: userStore.user?.id || null,
+                 payment_method_id: p.payment_method_id, 
             }
         })
 

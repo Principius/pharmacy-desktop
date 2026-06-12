@@ -46,6 +46,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // Sales
   createSale: async (salesData) =>
     ipcRenderer.invoke("sales:create", salesData),
+  getPaymentMethods: async () => ipcRenderer.invoke("paymentMethods:get"),
   getSales: async (filterOptions) =>
     ipcRenderer.invoke("sales:get", filterOptions),
   updateSale: async (saleId, updatedData) =>

@@ -54,7 +54,11 @@ function syncFromCloud() {
 
       if (result.status === 'success') {
         await loadProducts();
-        Swal.fire('Success', `Synced ${result.synced} products from cloud.`, 'success');
+        Swal.fire(
+          'Success',
+          `Synced ${result.synced_products} products and ${result.synced_payment_methods} payment methods from cloud.`,
+          'success'
+        );
       } else {
         Swal.fire('Info', result.message || 'No new products to sync.', 'info');
       }

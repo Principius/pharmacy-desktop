@@ -21,6 +21,10 @@ export default function registerSalesHandlers(ipcMain) {
     return await createSales(salesData)
   })
 
+  ipcMain.handle("paymentMethods:get", async () => {
+  return await db("payment_methods").select("*").orderBy("id");
+});
+
   ipcMain.handle('sales:getById', async (event, id) => {
     return await getSaleById(id)
   })
@@ -50,7 +54,7 @@ export default function registerSalesHandlers(ipcMain) {
   })
 
   ipcMain.handle('sales:get-monthly-revenue-stats', async () => {
-  return await getMonthlyRevenueStats()
-})
+    return await getMonthlyRevenueStats()
+  })
 
 }

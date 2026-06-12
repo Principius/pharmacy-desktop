@@ -51,20 +51,20 @@
                 </select>
             </label>
         </div>
-<div class="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-3 mb-4">
-  <div class="p-4 bg-blue-100 rounded-lg dark:bg-blue-900/30">
-    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Quantity</p>
-    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ totalQuantity.toLocaleString() }}</p>
-  </div>
-  <div class="p-4 bg-green-100 rounded-lg dark:bg-green-900/30">
-    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Sales</p>
-    <p class="text-2xl font-bold text-green-600">{{ totalAmount.toLocaleString() }} TZS</p>
-  </div>
-  <div class="p-4 bg-indigo-100 rounded-lg dark:bg-indigo-900/30" v-if="can('canViewProfit')">
-    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Profit</p>
-    <p class="text-2xl font-bold text-indigo-600">{{ totalProfit.toLocaleString() }} TZS</p>
-  </div>
-</div>
+        <div class="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-3 mb-4">
+            <div class="p-4 bg-blue-100 rounded-lg dark:bg-blue-900/30">
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Quantity</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ totalQuantity.toLocaleString() }}</p>
+            </div>
+            <div class="p-4 bg-green-100 rounded-lg dark:bg-green-900/30">
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Sales</p>
+                <p class="text-2xl font-bold text-green-600">{{ totalAmount.toLocaleString() }} TZS</p>
+            </div>
+            <div class="p-4 bg-indigo-100 rounded-lg dark:bg-indigo-900/30" v-if="can('canViewProfit')">
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Profit</p>
+                <p class="text-2xl font-bold text-indigo-600">{{ totalProfit.toLocaleString() }} TZS</p>
+            </div>
+        </div>
 
         <div class="overflow-x-auto border border-gray-200 rounded-lg dark:border-gray-700">
             <table class="w-full text-left table-auto">
@@ -100,6 +100,10 @@
                         </th>
                         <th
                             class="px-5 py-3 font-semibold text-gray-700 border-b border-gray-300 dark:text-gray-300 dark:border-gray-700">
+                            Paid By
+                        </th>
+                        <th
+                            class="px-5 py-3 font-semibold text-gray-700 border-b border-gray-300 dark:text-gray-300 dark:border-gray-700">
                             Synced
                         </th>
                         <th
@@ -121,7 +125,7 @@
                     <tr v-for="(sale, index) in filteredSales" :key="sale.id"
                         class="transition-colors border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
                         <td class="px-5 py-3 font-medium text-gray-900 dark:text-gray-100">
-                           {{ index + 1 + (currentPage - 1) * perPage }}
+                            {{ index + 1 + (currentPage - 1) * perPage }}
                         </td>
                         <td class="px-5 py-3 text-gray-900 dark:text-gray-100">
                             {{ sale.product_name }}
@@ -141,6 +145,9 @@
                         </td>
                         <td class="px-5 py-3 font-semibold text-indigo-600" v-if="can('canViewProfit')">
                             {{ sale.profit?.toLocaleString() }} TZS
+                        </td>
+                        <td class="px-5 py-3 font-semibold text-indigo-600">
+                            {{ sale.payment_method || "N/A" }}
                         </td>
                         <td class="px-5 py-3">
                             <span :class="sale.synced
@@ -191,11 +198,11 @@
                             {{ totalQuantity }}
                         </td>
                         <td></td>
-                         <td></td>
+                        <td></td>
                         <td class="px-5 py-3 text-green-600">
                             {{ totalAmount.toLocaleString() }} TZS
                         </td>
-                        <td class="px-5 py-3 text-indigo-600">
+                        <td class="px-5 py-3 text-indigo-600" v-if="can('canViewProfit')">
                             {{ totalProfit.toLocaleString() }} TZS
                         </td>
                         <td colspan="3"></td>
@@ -291,22 +298,22 @@ const sellerOptions = computed(() => {
 });
 
 const fetchSales = async (page = 1) => {
-  const result = await window.electronAPI.getSales({
-    page,
-    perPage,
-    startDate: startDate.value || null,
-    endDate: endDate.value || null,
-    sellerName: selectedSeller.value || null,
-    search: searchTerm.value || "",
-  });
+    const result = await window.electronAPI.getSales({
+        page,
+        perPage,
+        startDate: startDate.value || null,
+        endDate: endDate.value || null,
+        sellerName: selectedSeller.value || null,
+        search: searchTerm.value || "",
+    });
 
-  sales.value = result.sales;
-  totalPages.value = result.totalPages;
-  currentPage.value = result.page;
+    sales.value = result.sales;
+    totalPages.value = result.totalPages;
+    currentPage.value = result.page;
 
-  totalQuantity.value = Number(result.totals?.totalQuantity || 0);
-  totalAmount.value = Number(result.totals?.totalAmount || 0);
-  totalProfit.value = Number(result.totals?.totalProfit || 0);
+    totalQuantity.value = Number(result.totals?.totalQuantity || 0);
+    totalAmount.value = Number(result.totals?.totalAmount || 0);
+    totalProfit.value = Number(result.totals?.totalProfit || 0);
 };
 
 // handle pagination
@@ -394,6 +401,6 @@ const filteredSales = computed(() => {
 });
 
 watch([startDate, endDate, selectedSeller, searchTerm], () => {
-  fetchSales(1);
+    fetchSales(1);
 });
 </script>

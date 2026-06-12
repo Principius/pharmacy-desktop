@@ -18,19 +18,22 @@ export default async function syncProductsFromCloud() {
     );
 
     const products = response.data.products;
-    if (!products || products.length === 0) {
-      return { status: "no_data", message: "No products to sync." };
+    const paymentMethods = response.data.payment_methods;
+
+    if ((!products || products.length === 0) && (!paymentMethods || paymentMethods.length === 0)) {
+      return { status: "no_data", message: "No products or payment methods to sync." };
     }
 
     await db.transaction(async (trx) => {
+      /* -------------------------------------------------
+       * 1. SYNC PRODUCTS
+       * ------------------------------------------------- */
       for (const product of products) {
-        // Step 1: Find existing local product by name + batch_no
         const existing = await trx("products")
           .where({ name: product.name, batch_no: product.batch_no })
           .first();
 
         if (existing) {
-          // Step 2: Update and assign server_id if found
           await trx("products").where({ id: existing.id }).update({
             server_id: product.id,
             brand: product.brand,
@@ -49,7 +52,6 @@ export default async function syncProductsFromCloud() {
             synced: true,
           });
         } else {
-          // Step 3: Insert with server_id and .onConflict to prevent duplication
           await trx("products")
             .insert({
               server_id: product.id,
@@ -92,11 +94,30 @@ export default async function syncProductsFromCloud() {
             });
         }
       }
+
+      /* -------------------------------------------------
+       * 2. SYNC PAYMENT METHODS
+       * ------------------------------------------------- */
+      for (const pm of paymentMethods) {
+        await trx("payment_methods")
+          .insert({
+            id: pm.id,
+            name: pm.name,
+            created_at: pm.created_at,
+            updated_at: pm.updated_at,
+          })
+          .onConflict("id")
+          .merge({
+            name: pm.name,
+            updated_at: pm.updated_at,
+          });
+      }
     });
 
     return {
       status: "success",
-      synced: products.length,
+      synced_products: products.length,
+      synced_payment_methods: paymentMethods.length,
     };
   } catch (error) {
     console.error("Product Sync Error:", error.response?.data || error.message);
@@ -109,3 +130,4 @@ export default async function syncProductsFromCloud() {
     };
   }
 }
+

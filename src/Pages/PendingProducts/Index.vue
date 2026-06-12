@@ -2,13 +2,13 @@
     <div class="w-full mt-4 mx-auto p-6 bg-white rounded-lg shadow-md dark:bg-gray-900 dark:text-white">
         <Back />
         <h1 class="mt-4 text-3xl font-bold mb-6 text-purple-700 dark:text-purple-400">
-            Pending Products
+            Received Products
         </h1>
 
         <!-- Buttons -->
         <button @click="openAddModal"
             class="mb-4 px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-green-400">
-            + Add New Pending Product
+            + Add Received Product
         </button>
 
         <button @click="syncToCloud" :disabled="isSyncing" v-if="can('canSyncPendingProducts')"
@@ -127,7 +127,7 @@
                     </tr>
                     <tr v-if="filteredProducts.length === 0">
                         <td colspan="17" class="text-center py-6 text-gray-500 dark:text-gray-400 italic">
-                            No pending products found.
+                            No received products found.
                         </td>
                     </tr>
                 </tbody>
@@ -138,7 +138,7 @@
         <dialog ref="productDialog"
             class="w-full max-w-lg p-6 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
             <h2 class="text-xl font-bold mb-4">
-                {{ isEditing ? "Edit" : "Add" }} Pending Product
+                {{ isEditing ? "Edit" : "Add" }} Received Product
             </h2>
             <form @submit.prevent="saveProduct" class="space-y-4">
                 <div v-if="isEditing">

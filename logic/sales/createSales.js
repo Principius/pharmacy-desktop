@@ -50,6 +50,7 @@ export default async function createSales(salesData) {
         expected_selling_price,
         seller_id,
         sale_uuid: uuidv4(),
+        payment_method_id: sale.payment_method_id,
         profit, // ✅ Pass profit here
       };
 

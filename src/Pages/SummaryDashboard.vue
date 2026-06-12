@@ -20,8 +20,13 @@
             <SummaryCard icon="🏦" title="Total Capital" :value="format(summary.total_capital)" />
             <SummaryCard icon="👥" title="Total Users" :value="summary.total_users" />
             <SummaryCard icon="⏳" title="Expired Products" :value="summary.total_expired_products" />
+            <!-- Improved Expenses Card -->
             <SummaryCard icon="💸" title="Total Expenses" :value="format(summary.total_expenses)" />
+
             <SummaryCard icon="⚠️" title="Damaged Products" :value="summary.total_damaged_products" />
+
+            <!-- NEW: Overall Net Profit -->
+            <SummaryCard icon="📈" title="Overall Net Profit" :value="format(summary.overall_net_profit)" />
             <SummaryCard icon="📅" title="Synced At" :value="formatDate(summary.synced_at)" />
         </div>
 
