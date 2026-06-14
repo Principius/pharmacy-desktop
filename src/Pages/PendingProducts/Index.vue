@@ -149,6 +149,7 @@
 
                 <div class="relative">
                     <!-- Search input -->
+                    <label class="block mb-1 font-semibold">Name</label>
                     <input v-model="searchQuery" @input="onSearch" type="text"
                         placeholder="Search product by name or brand..."
                         class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
@@ -164,11 +165,14 @@
                     </ul>
                 </div>
 
-                <input v-model.lazy="form.brand" list="brandSuggestions" type="text"
-                    class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
-                <datalist id="brandSuggestions">
-                    <option v-for="b in brandSuggestions" :key="b" :value="b" />
-                </datalist>
+                <div>
+                    <label class="block mb-1 font-semibold">Brand</label> <!-- ADD THIS -->
+                    <input v-model.lazy="form.brand" list="brandSuggestions" type="text"
+                        class="w-full px-3 py-2 rounded border dark:bg-gray-800 dark:border-gray-700" />
+                    <datalist id="brandSuggestions">
+                        <option v-for="b in brandSuggestions" :key="b" :value="b" />
+                    </datalist>
+                </div>
 
                 <div>
                     <label class="block mb-1 font-semibold">Category</label>
@@ -244,6 +248,17 @@
                         <option value="approved">Approved</option>
                         <option value="rejected">Rejected</option>
                     </select>
+                </div>
+
+                <div v-if="formErrors.length > 0"
+                    class="rounded-md bg-red-50 dark:bg-red-900/30 border border-red-300 dark:border-red-700 p-4">
+                    <p class="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">Please fix the following
+                        errors:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li v-for="(error, i) in formErrors" :key="i" class="text-sm text-red-600 dark:text-red-300">
+                            {{ error }}
+                        </li>
+                    </ul>
                 </div>
 
                 <div class="flex justify-end space-x-4">
@@ -386,6 +401,7 @@ const form = ref({
 const searchQuery = ref("");
 const suggestions = ref([]);
 const showSuggestions = ref(false);
+const formErrors = ref([]);
 
 const onSearch = debounce(async () => {
     if (!searchQuery.value.trim()) {
@@ -512,7 +528,39 @@ function closeModal() {
 }
 
 async function saveProduct() {
-    const safeData = JSON.parse(JSON.stringify(form.value));
+    const f = form.value;
+    formErrors.value = [];
+
+    if (!f.name?.trim())
+        formErrors.value.push('Product name is required. Please search and select one.');
+    if (!f.brand?.trim())
+        formErrors.value.push('Brand is required.');
+    if (!f.category?.trim())
+        formErrors.value.push('Category is required.');
+    if (!f.form?.trim())
+        formErrors.value.push('Form is required.');
+    if (!f.expire_date)
+        formErrors.value.push('Expire Date is required.');
+    if (f.quantity_remained === null || f.quantity_remained === undefined || f.quantity_remained === '' || isNaN(f.quantity_remained) || f.quantity_remained < 0)
+        formErrors.value.push('Quantity must be a valid non-negative number.');
+    if (!f.buying_price_per_unit || isNaN(f.buying_price_per_unit) || f.buying_price_per_unit <= 0)
+        formErrors.value.push('Buying Price Per Unit must be greater than 0.');
+    if (!f.buying_price || isNaN(f.buying_price) || f.buying_price <= 0)
+        formErrors.value.push('Total Buying Price must be greater than 0.');
+    if (!f.selling_price_per_unit || isNaN(f.selling_price_per_unit) || f.selling_price_per_unit <= 0)
+        formErrors.value.push('Selling Price Per Unit must be greater than 0.');
+    if (!f.supplier_name?.trim())
+        formErrors.value.push('Supplier Name is required.');
+    if (f.minimum_stock === null || f.minimum_stock === undefined || f.minimum_stock === '' || isNaN(f.minimum_stock) || f.minimum_stock < 0)
+        formErrors.value.push('Minimum Stock must be a valid non-negative number.');
+    if (f.min_days_to_notify_expiring === null || f.min_days_to_notify_expiring === undefined || f.min_days_to_notify_expiring === '' || isNaN(f.min_days_to_notify_expiring) || f.min_days_to_notify_expiring < 0)
+        formErrors.value.push('Min Days To Notify Expiring must be a valid non-negative number.');
+    if (!f.status)
+        formErrors.value.push('Status is required.');
+
+    if (formErrors.value.length > 0) return;
+
+    const safeData = JSON.parse(JSON.stringify(f));
     try {
         if (isEditing.value) {
             await window.electronAPI.updatePendingProduct(safeData.id, safeData);
@@ -521,6 +569,7 @@ async function saveProduct() {
             await window.electronAPI.createPendingProduct(safeData);
             Swal.fire("Added!", "Product added successfully.", "success");
         }
+        formErrors.value = [];  // clear on success
         closeModal();
         await fetchPendingProducts();
     } catch (error) {
@@ -555,6 +604,7 @@ async function syncToCloud() {
     try {
         const result = await window.electronAPI.syncPendingProductsToCloud();
         if (result.status === "success") {
+            await fetchPendingProducts(); // ADD THIS — refreshes is_synced flags in the table
             Swal.fire(
                 "Synced!",
                 `${result.synced} products synced successfully.`,
