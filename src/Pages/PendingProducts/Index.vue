@@ -423,6 +423,11 @@ const onSearch = debounce(async () => {
     }
 }, 300);
 
+// Keep form.name in sync with whatever the user types, even if
+// they never pick a suggestion (i.e. it's a genuinely new product).
+watch(searchQuery, (newVal) => {
+    form.value.name = newVal.trim();
+});
 
 function selectProduct(product) {
     // Autofill form
@@ -444,6 +449,10 @@ function selectProduct(product) {
     searchQuery.value = `${product.name} (${product.brand || "No brand"})`;
     showSuggestions.value = false;
     suggestions.value = [];
+
+    // Since searchQuery now includes "(brand)" suffix, keep the
+    // actual submitted name clean — override what the watcher just set.
+    form.value.name = product.name;
 }
 
 // ---------------------
@@ -478,7 +487,6 @@ watch(
     }
 );
 
-
 // Init
 onMounted(async () => {
     fetchPendingProducts();
@@ -493,6 +501,9 @@ async function fetchPendingProducts() {
 function openAddModal() {
     isEditing.value = false;
     autofilledFields.value.clear();
+    searchQuery.value = "";
+    suggestions.value = [];
+    showSuggestions.value = false;
     const today = new Date().toISOString().split("T")[0];
     form.value = {
         id: null,
@@ -512,6 +523,7 @@ function openAddModal() {
         buying_price_per_unit: 0,
         min_days_to_notify_expiring: 0,
         status: "pending",
+        percentage_markup: 0,
     };
     productDialog.value.showModal();
 }
@@ -520,6 +532,9 @@ function openEditModal(product) {
     isEditing.value = true;
     autofilledFields.value.clear();
     form.value = { ...product };
+    searchQuery.value = product.name || "";
+    suggestions.value = [];
+    showSuggestions.value = false;
     productDialog.value.showModal();
 }
 
@@ -604,7 +619,7 @@ async function syncToCloud() {
     try {
         const result = await window.electronAPI.syncPendingProductsToCloud();
         if (result.status === "success") {
-            await fetchPendingProducts(); // ADD THIS — refreshes is_synced flags in the table
+            await fetchPendingProducts(); // refreshes is_synced flags in the table
             Swal.fire(
                 "Synced!",
                 `${result.synced} products synced successfully.`,
